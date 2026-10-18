@@ -2,7 +2,10 @@
 
 Mark's personal weightlifting log. Sessions are written in the Notes app, pasted to Claude, parsed
 by the `lift-log` skill (in the `claude` repo), confirmed, and stored here as plain-text JSONL.
-A front end comes later; for now, questions are answered by the command line.
+The dashboard is at **https://ardqme.github.io/lift-log/**. It's `index.html` here, served by GitHub
+Pages, and it draws everything from `data/stats.json`. `lift.py` rebuilds that file on every add,
+replace, or exercise change, so the page shows the same numbers the skill reports. This repository
+is public, so the log is readable by anyone with the link.
 
 - `data/` — `exercises.jsonl` (the library), `sessions.jsonl`, `sets.jsonl`
 - `docs/schema.md` — every field and every calculation rule
@@ -29,6 +32,10 @@ Run from this folder with `python3 lift.py <command>`.
 | `cues EXERCISE` | the latest cues for an exercise |
 | `load` | session RPE × minutes per session |
 | `validate` | check every record |
+| `stats` | rebuild `data/stats.json` for the dashboard (automatic after writes) |
+
+To preview the dashboard locally: `python3 -m http.server` in this folder, then open
+http://localhost:8000.
 
 `EXERCISE` can be the id, the name, or any alias.
 
