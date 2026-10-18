@@ -133,10 +133,12 @@ class LogTest(unittest.TestCase):
         self.assertEqual(vol["2026-10-12"]["forearms"], 1)
 
     def test_session_prs_against_history_only(self):
-        self.add(bundle("2026-10-11", [sset("low-bar-back-squat", "regular", [seg(100, 5)])], new=[SQUAT]))
+        first = self.add(bundle("2026-10-11", [sset("low-bar-back-squat", "regular", [seg(100, 5)])], new=[SQUAT]))
+        self.assertIn("baseline", first)
+        self.assertNotIn("heaviest", first)
         out = self.add(bundle("2026-10-18", [sset("low-bar-back-squat", "regular", [seg(105, 5)])]))
-        self.assertIn("5-rep max", out)
-        self.assertNotIn("6-rep max", out)
+        self.assertIn("heaviest for 1–5 reps: 105 kg", out)
+        self.assertNotIn("6 reps", out)
 
     # --- validation and editing ---
 
