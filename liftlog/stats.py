@@ -1,0 +1,105 @@
+"""Builds data/stats.json: every number the dashboard shows, computed by the same
+rules the command line uses, so the page and the skill can never disagree."""
+
+import datetime as dt
+
+from . import calc, schema
+
+MAX_WEEKS = 26  # volume grid covers at most the last half year
+
+
+def _effort(st):
+    parts = []
+    if st.get("rpe") is not None:
+        parts.append(f"@{calc._trim(st['rpe'])}")
+    if st.get("rir") is not None:
+        parts.append(f"{calc._trim(st['rir'])} RIR")
+    return " ".join(parts)
+
+
+def _exercise_block(db, ex):
+    p = calc.prs(db, ex)
+    block = {
+        "id": ex["id"], "name": ex["name"], "load_type": ex["load_type"], "measure": ex["measure"],
+        "primary_muscles": ex["primary_muscles"], "secondary_muscles": ex.get("secondary_muscles", []),
+        "e1rm_history": [{"date": r["date"], "session_id": r["session_id"], "kg": r["e1rm"],
+                          "from": calc.format_segment(r["segment"], ex)}
+                         for r in calc.e1rm_history(db, ex)],
+        "e1rm": None, "rep_max": [], "holds": [], "best_sets": [],
+        "cues": [{"date": d, "cue": c} for d, c in calc.cues(db, ex, last=5)],
+    }
+    if ex["measure"] == "hold":
+        block["holds"] = [{"kg": load, "seconds": r["seconds"], "date": r["date"]}
+                          for load, r in sorted(p["holds"].items())]
+    else:
+        b = p["e1rm"]
+        if b:
+            block["e1rm"] = {"kg": b["e1rm"], "date": b["date"], "from": calc.format_segment(b["segment"], ex)}
+        block["rep_max"] = [{"reps": n, "kg": r["load_kg"], "date": r["date"],
+                             "from": calc.format_segment(r["segment"], ex)}
+                            for n, r in sorted(p["rep_max"].items())]
+    for kind, r in calc.best_sets(db, ex).items():
+        block["best_sets"].append({"type": kind, "date": r["date"], "volume_kg": r["volume_kg"],
+                                   "segments": ", ".join(calc.format_segment(s, ex) for s in r["set"]["segments"])})
+    used = {st["session_id"] for st in db["sets"] if st["exercise_id"] == ex["id"]}
+    dates = [s["date"] for s in db["sessions"] if s["id"] in used]
+    block["last_logged"] = max(dates) if dates else None
+    return block
+
+
+def _volume(db, today):
+    if not db["sessions"]:
+        return {"weeks": [], "muscles": [], "table": {}}
+    first = dt.date.fromisoformat(min(s["date"] for s in db["sessions"]))
+    first_monday = first - dt.timedelta(days=first.weekday())
+    this_monday = today - dt.timedelta(days=today.weekday())
+    weeks = min(MAX_WEEKS, (this_monday - first_monday).days // 7 + 1)
+    table = calc.weekly_volume(db, weeks=weeks, today=today)
+    week_keys = list(table)
+    muscles = [m for m in schema.MUSCLES if any(table[w].get(m) for w in week_keys)]
+    return {"weeks": week_keys, "muscles": muscles,
+            "table": {m: [table[w].get(m, 0) for w in week_keys] for m in muscles}}
+
+
+def _session_block(db, sess):
+    exercises = {ex["id"]: ex for ex in db["exercises"]}
+    sets = sorted((st for st in db["sets"] if st["session_id"] == sess["id"]), key=lambda st: st["order"])
+    rows = []
+    for st in sets:
+        ex = exercises[st["exercise_id"]]
+        rows.append({"exercise": ex["name"], "superset": st.get("superset"), "type": st["type"],
+                     "segments": ", ".join(calc.format_segment(s, ex) for s in st["segments"]),
+                     "mode": st["mode"], "effort": _effort(st), "gear": st.get("gear", []),
+                     "cue": st.get("cue"), "notes": st.get("notes")})
+    bw = sess.get("bodyweight")
+    return {"id": sess["id"], "date": sess["date"], "start": sess.get("start"), "end": sess.get("end"),
+            "location": sess.get("location"), "readiness": sess.get("readiness"),
+            "sleep_score": sess.get("sleep_score"), "hrv_ms": sess.get("hrv_ms"),
+            "bodyweight_kg": calc.to_kg(bw["value"], bw["unit"]) if bw else None,
+            "session_rpe": sess.get("session_rpe"), "minutes": calc.minutes(sess),
+            "training_load": calc.training_load(sess), "notes": sess.get("notes"),
+            "hard_sets": sum(1 for st in sets if st["type"] != "warm-up"), "sets": rows}
+
+
+def _exercise_order(db, blocks):
+    """Most recently trained first; within a session, in the order performed."""
+    rank = calc.session_rank(db)
+    pos = {}
+    for st in db["sets"]:
+        key = (rank[st["session_id"]], -st["order"])
+        if st["exercise_id"] not in pos or key > pos[st["exercise_id"]]:
+            pos[st["exercise_id"]] = key
+    # latest session first, then earliest set within it
+    return sorted(blocks, key=lambda b: (-pos.get(b["id"], (-1, 0))[0], -pos.get(b["id"], (-1, 0))[1], b["name"]))
+
+
+def build(db, today=None):
+    today = today or dt.date.today()
+    sessions = calc.session_order(db)
+    return {
+        "generated": dt.datetime.now().astimezone().isoformat(timespec="seconds"),
+        "lb_per_kg": schema.LB_PER_KG,
+        "exercises": _exercise_order(db, [_exercise_block(db, ex) for ex in db["exercises"]]),
+        "volume": _volume(db, today),
+        "sessions": [_session_block(db, s) for s in reversed(sessions)],
+    }

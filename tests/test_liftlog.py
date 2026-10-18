@@ -9,7 +9,7 @@ import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 
-from liftlog import calc, cli, store, validate
+from liftlog import calc, cli, stats as stats_mod, store, validate
 
 SQUAT = {"id": "low-bar-back-squat", "name": "Low-bar Barbell Back Squat", "aliases": ["low bar squat"],
          "equipment": "barbell", "load_type": "total", "measure": "reps", "bodyweight_share": None,
@@ -167,6 +167,21 @@ class LogTest(unittest.TestCase):
         self.assertEqual(db["sets"][0]["id"], "2026-10-18-1-s01")
         self.assertEqual(db["sets"][0]["segments"][0]["full"], 7)
         self.assertEqual(validate.database(db), [])
+
+    def test_stats_file_matches_calculations(self):
+        self.add(bundle("2026-10-18", [
+            sset("low-bar-back-squat", "warm-up", [seg(60, 5)]),
+            sset("low-bar-back-squat", "regular", [seg(100, 6)], rpe=6, cue="Brace."),
+            sset("dumbbell-curl", "regular", [seg(30, 10, "lb")]),
+        ], new=[SQUAT, CURL], readiness=7))
+        self.assertTrue((Path(self.tmp.name) / "stats.json").exists())  # add refreshes it
+        stats = stats_mod.build(store.load_all(), today=dt.date(2026, 10, 18))
+        squat = stats["exercises"][0]
+        self.assertEqual(squat["id"], "low-bar-back-squat")  # first exercise performed comes first
+        self.assertAlmostEqual(squat["e1rm"]["kg"], 100 * (1 + 10 / 30))
+        self.assertEqual(squat["cues"][0]["cue"], "Brace.")
+        self.assertEqual(stats["sessions"][0]["hard_sets"], 2)
+        self.assertEqual(stats["volume"]["table"]["quads"][-1], 1)
 
     def test_last_unit_and_alias_lookup(self):
         self.add(bundle("2026-10-18", [sset("dumbbell-curl", "regular", [seg(30, 10, "lb")])], new=[CURL, SQUAT]))

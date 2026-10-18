@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lift Log</title>
+<meta name="description" content="Mark's lifting log: e1RM trends, PRs, weekly volume per muscle, recovery, and session history.">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface-1: #fcfcfb;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11,11,11,0.10);
+  --wash: rgba(11,11,11,0.04);
+  --series-1: #2a78d6;
+  --accent-ink: #1c5cab;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface-1: #1a1a19;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255,255,255,0.10);
+    --wash: rgba(255,255,255,0.05);
+    --series-1: #3987e5;
+    --accent-ink: #86b6ef;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface-1: #1a1a19;
+  --text-primary: #f0efec;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255,255,255,0.10);
+  --wash: rgba(255,255,255,0.05);
+  --series-1: #3987e5;
+  --accent-ink: #86b6ef;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--page);
+  color: var(--text-primary);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.wrap { max-width: 1040px; margin: 0 auto; padding: 20px 16px 48px; }
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+h1 { font-size: 22px; margin: 0; font-weight: 650; letter-spacing: -0.01em; }
+.sub { color: var(--text-secondary); margin: 2px 0 0; font-size: 14px; }
+h2 { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
+h3 { font-size: 13px; font-weight: 600; margin: 0 0 6px; color: var(--text-secondary); }
+.caption { color: var(--text-muted); font-size: 13px; margin: 0 0 12px; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface-1); }
+.seg button { border: 0; background: none; color: var(--text-secondary); font: inherit; font-size: 13px; padding: 6px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--wash); color: var(--text-primary); font-weight: 600; }
+nav.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; overflow-x: auto; }
+nav.tabs button { border: 0; background: none; font: inherit; color: var(--text-secondary); padding: 8px 12px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+nav.tabs button[aria-selected="true"] { color: var(--text-primary); border-bottom-color: var(--text-primary); font-weight: 600; }
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+select { font: inherit; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary); max-width: 100%; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.tile .label { color: var(--text-secondary); font-size: 13px; }
+.tile .value { font-size: 22px; font-weight: 600; }
+.tile .note { color: var(--text-muted); font-size: 12px; }
+.hero .value { font-size: 48px; line-height: 1.05; font-weight: 600; letter-spacing: -0.02em; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { color: var(--text-secondary); font-weight: 600; font-size: 13px; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.scrollx { overflow-x: auto; }
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; overflow: visible; }
+.chart svg:focus { outline: 2px solid var(--axis); outline-offset: 4px; border-radius: 4px; }
+.tick { fill: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.endlabel { fill: var(--text-primary); font-size: 12px; font-weight: 600; }
+.tooltip { position: absolute; pointer-events: none; background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); white-space: nowrap; display: none; z-index: 2; }
+.tooltip strong { display: block; font-size: 15px; }
+.tooltip .key { display: inline-block; width: 12px; height: 2px; background: var(--series-1); vertical-align: middle; margin-right: 6px; }
+.tooltip span { color: var(--text-secondary); }
+.empty { color: var(--text-muted); font-size: 14px; padding: 8px 0; }
+.small-multiples { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.heat { width: auto; }
+.heat td.cell { text-align: center; font-variant-numeric: tabular-nums; min-width: 44px; border: 2px solid var(--surface-1); border-radius: 6px; padding: 6px 4px; }
+.heat th.week { text-align: center; font-weight: 500; color: var(--text-muted); white-space: nowrap; }
+.heat td.m { white-space: nowrap; color: var(--text-secondary); }
+.legend { display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 12px; margin-top: 10px; flex-wrap: wrap; }
+.legend .sw { width: 22px; height: 12px; border-radius: 3px; display: inline-block; }
+details.session { border-bottom: 1px solid var(--grid); padding: 10px 0; }
+details.session summary { cursor: pointer; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+details.session summary .d { font-weight: 600; }
+details.session summary .m { color: var(--text-secondary); font-size: 13px; }
+.metrics { color: var(--text-secondary); font-size: 13px; margin: 8px 0 12px; }
+.exname { font-weight: 600; margin: 12px 0 4px; }
+.exname small { color: var(--text-muted); font-weight: 400; }
+.setnote { color: var(--text-secondary); font-size: 13px; }
+table.sets { table-layout: fixed; min-width: 520px; }
+table.sets td.nw { white-space: nowrap; }
+.setnote b { color: var(--text-primary); font-weight: 600; }
+ul.cues { margin: 0; padding-left: 18px; }
+ul.cues li { margin-bottom: 4px; }
+ul.cues .date { color: var(--text-muted); font-size: 12px; margin-left: 6px; }
+footer { color: var(--text-muted); font-size: 12px; margin-top: 24px; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Lift Log</h1>
+      <p class="sub" id="summary">Loading…</p>
+    </div>
+    <div class="seg" role="group" aria-label="Units">
+      <button type="button" data-unit="kg" aria-pressed="true">kg</button>
+      <button type="button" data-unit="lb" aria-pressed="false">lb</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="progress" aria-selected="true">Progress</button>
+    <button role="tab" data-tab="volume" aria-selected="false">Volume</button>
+    <button role="tab" data-tab="recovery" aria-selected="false">Recovery</button>
+    <button role="tab" data-tab="sessions" aria-selected="false">Sessions</button>
+  </nav>
+
+  <section id="progress" role="tabpanel"></section>
+  <section id="volume" role="tabpanel" hidden></section>
+  <section id="recovery" role="tabpanel" hidden></section>
+  <section id="sessions" role="tabpanel" hidden></section>
+
+  <footer id="footer"></footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var DATA = null;
+  var state = { unit: "kg", tab: "progress", exercise: null };
+  try {
+    var saved = JSON.parse(localStorage.getItem("liftlog-view") || "{}");
+    if (saved.unit === "kg" || saved.unit === "lb") state.unit = saved.unit;
+    if (saved.tab) state.tab = saved.tab;
+    if (saved.exercise) state.exercise = saved.exercise;
+  } catch (e) { /* storage unavailable: defaults are fine */ }
+
+  function remember() {
+    try { localStorage.setItem("liftlog-view", JSON.stringify(state)); } catch (e) {}
+  }
+
+  // ---------- small helpers ----------
+
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === "text") node.textContent = attrs[k];
+      else if (k === "class") node.className = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function (c) {
+      if (c == null) return;
+      node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    });
+    return node;
+  }
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function svg(tag, attrs) {
+    var node = document.createElementNS(SVGNS, tag);
+    Object.keys(attrs || {}).forEach(function (k) { node.setAttribute(k, attrs[k]); });
+    return node;
+  }
+  function trim(x, places) {
+    var p = Math.pow(10, places == null ? 1 : places);
+    var v = Math.round(x * p) / p;
+    return String(v);
+  }
+  function load(kg) {
+    if (kg == null) return "—";
+    var v = state.unit === "lb" ? kg * DATA.lb_per_kg : kg;
+    return trim(v, 1) + " " + state.unit;
+  }
+  function muscles(list) { return list.map(function (m) { return m.replace(/-/g, " "); }).join(", "); }
+  function loadNum(kg) { return state.unit === "lb" ? kg * DATA.lb_per_kg : kg; }
+  function day(d) { return new Date(d + "T12:00:00"); }
+  function fmtDate(d, withYear) {
+    var opts = { month: "short", day: "numeric" };
+    if (withYear) opts.year = "numeric";
+    return day(d).toLocaleDateString(undefined, opts);
+  }
+  function fmtLong(d) {
+    return day(d).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+  }
+  function niceTicks(lo, hi, count) {
+    if (lo === hi) { lo -= 1; hi += 1; }
+    var span = hi - lo, step = Math.pow(10, Math.floor(Math.log10(span / count)));
+    var err = (count * step) / span;
+    if (err <= 0.15) step *= 10; else if (err <= 0.35) step *= 5; else if (err <= 0.75) step *= 2;
+    var start = Math.floor(lo / step) * step, end = Math.ceil(hi / step) * step, out = [];
+    for (var v = start; v <= end + step / 2; v += step) out.push(Math.round(v * 1e6) / 1e6);
+    return out;
+  }
+
+  // ---------- line chart (single series, crosshair tooltip) ----------
+
+  function lineChart(host, points, opts) {
+    // points: [{date, y, detail}] sorted by date. opts: {height, yDomain, fmt, label}
+    host.textContent = "";
+    var wrap = el("div", { class: "chart" });
+    host.appendChild(wrap);
+    if (!points.length) {
+      wrap.appendChild(el("p", { class: "empty", text: opts.emptyText || "Nothing logged yet." }));
+      return;
+    }
+    var W = Math.max(260, host.clientWidth || 600), H = opts.height || 220;
+    var m = { l: 44, r: 56, t: 12, b: 26 };
+    var iw = W - m.l - m.r, ih = H - m.t - m.b;
+    var ts = points.map(function (p) { return day(p.date).getTime(); });
+    var tMin = Math.min.apply(null, ts), tMax = Math.max.apply(null, ts);
+    var single = tMin === tMax;
+    function x(t) { return single ? m.l + iw / 2 : m.l + ((t - tMin) / (tMax - tMin)) * iw; }
+    var ys = points.map(function (p) { return p.y; });
+    var lo = opts.yDomain ? opts.yDomain[0] : Math.min.apply(null, ys);
+    var hi = opts.yDomain ? opts.yDomain[1] : Math.max.apply(null, ys);
+    if (!opts.yDomain) { var pad = (hi - lo) * 0.15 || Math.abs(hi) * 0.1 || 1; lo -= pad; hi += pad; }
+    var ticks = niceTicks(lo, hi, 4);
+    if (!opts.yDomain) { lo = ticks[0]; hi = ticks[ticks.length - 1]; }
+    else ticks = ticks.filter(function (v) { return v >= lo && v <= hi; });
+    function y(v) { return m.t + ih - ((v - lo) / (hi - lo)) * ih; }
+
+    var s = svg("svg", { viewBox: "0 0 " + W + " " + H, height: H, tabindex: "0", role: "img",
+                         "aria-label": opts.label || "chart" });
+    ticks.forEach(function (v) {
+      s.appendChild(svg("line", { x1: m.l, x2: m.l + iw, y1: y(v), y2: y(v), stroke: "var(--grid)", "stroke-width": 1 }));
+      var t = svg("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end", class: "tick" });
+      t.textContent = opts.tick ? opts.tick(v) : trim(v, 1);
+      s.appendChild(t);
+    });
+    s.appendChild(svg("line", { x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih, stroke: "var(--axis)", "stroke-width": 1 }));
+    // x ticks: first, last, and up to three between
+    var xIdx = points.length <= 5 ? points.map(function (_, i) { return i; })
+      : [0, Math.round((points.length - 1) / 4), Math.round((points.length - 1) / 2), Math.round(3 * (points.length - 1) / 4), points.length - 1];
+    xIdx.filter(function (v, i, a) { return a.indexOf(v) === i; }).forEach(function (i) {
+      var t = svg("text", { x: x(ts[i]), y: H - 6, "text-anchor": "middle", class: "tick" });
+      t.textContent = fmtDate(points[i].date);
+      s.appendChild(t);
+    });
+    if (points.length > 1) {
+      var d = points.map(function (p, i) { return (i ? "L" : "M") + x(ts[i]).toFixed(1) + " " + y(p.y).toFixed(1); }).join(" ");
+      s.appendChild(svg("path", { d: d, fill: "none", stroke: "var(--series-1)", "stroke-width": 2,
+                                  "stroke-linejoin": "round", "stroke-linecap": "round" }));
+    }
+    points.forEach(function (p, i) {
+      s.appendChild(svg("circle", { cx: x(ts[i]), cy: y(p.y), r: 4, fill: "var(--series-1)",
+                                    stroke: "var(--surface-1)", "stroke-width": 2 }));
+    });
+    var last = points[points.length - 1];
+    var lab = svg("text", { x: x(ts[ts.length - 1]) + 9, y: y(last.y) + 4, class: "endlabel" });
+    lab.textContent = opts.fmt(last.y);
+    s.appendChild(lab);
+
+    var cross = svg("line", { y1: m.t, y2: m.t + ih, stroke: "var(--axis)", "stroke-width": 1, visibility: "hidden" });
+    var ring = svg("circle", { r: 6, fill: "var(--series-1)", stroke: "var(--surface-1)", "stroke-width": 2, visibility: "hidden" });
+    s.appendChild(cross); s.appendChild(ring);
+    var hit = svg("rect", { x: m.l - 12, y: m.t, width: iw + 24, height: ih, fill: "transparent" });
+    s.appendChild(hit);
+    wrap.appendChild(s);
+    var tip = el("div", { class: "tooltip" });
+    wrap.appendChild(tip);
+
+    function show(i) {
+      var p = points[i], px = x(ts[i]), py = y(p.y);
+      cross.setAttribute("x1", px); cross.setAttribute("x2", px); cross.setAttribute("visibility", "visible");
+      ring.setAttribute("cx", px); ring.setAttribute("cy", py); ring.setAttribute("visibility", "visible");
+      tip.textContent = "";
+      tip.appendChild(el("strong", { text: opts.fmt(p.y) }));
+      tip.appendChild(el("div", null, [el("i", { class: "key" }), el("span", { text: fmtDate(p.date, true) + (p.detail ? " · " + p.detail : "") })]));
+      tip.style.display = "block";
+      var scale = s.getBoundingClientRect().width / W;
+      var left = px * scale + 12, tw = tip.offsetWidth;
+      if (left + tw > wrap.clientWidth) left = px * scale - tw - 12;
+      tip.style.left = Math.max(0, left) + "px";
+      tip.style.top = Math.max(0, py * scale - 20) + "px";
+      focusIdx = i;
+    }
+    function hide() { cross.setAttribute("visibility", "hidden"); ring.setAttribute("visibility", "hidden"); tip.style.display = "none"; }
+    var focusIdx = points.length - 1;
+    function nearest(evt) {
+      var r = s.getBoundingClientRect(), px = (evt.clientX - r.left) * (W / r.width), best = 0, bd = Infinity;
+      ts.forEach(function (t, i) { var dd = Math.abs(x(t) - px); if (dd < bd) { bd = dd; best = i; } });
+      return best;
+    }
+    hit.addEventListener("pointermove", function (e) { show(nearest(e)); });
+    hit.addEventListener("pointerdown", function (e) { show(nearest(e)); });
+    hit.addEventListener("pointerleave", hide);
+    s.addEventListener("focus", function () { show(focusIdx); });
+    s.addEventListener("blur", hide);
+    s.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowLeft") { show(Math.max(0, focusIdx - 1)); e.preventDefault(); }
+      if (e.key === "ArrowRight") { show(Math.min(points.length - 1, focusIdx + 1)); e.preventDefault(); }
+    });
+    if (points.length === 1 && opts.singleNote) wrap.appendChild(el("p", { class: "caption", text: opts.singleNote }));
+  }
+
+  function tableOf(headers, rows, numericCols) {
+    var t = el("table");
+    var tr = el("tr");
+    headers.forEach(function (h, i) { tr.appendChild(el("th", { text: h, class: (numericCols || []).indexOf(i) >= 0 ? "num" : "" })); });
+    t.appendChild(el("thead", null, [tr]));
+    var tb = el("tbody");
+    rows.forEach(function (r) {
+      var row = el("tr");
+      r.forEach(function (c, i) { row.appendChild(el("td", { text: c == null ? "—" : String(c), class: (numericCols || []).indexOf(i) >= 0 ? "num" : "" })); });
+      tb.appendChild(row);
+    });
+    t.appendChild(tb);
+    return el("div", { class: "scrollx" }, [t]);
+  }
+
+  // ---------- Progress ----------
+
+  function renderProgress() {
+    var root = document.getElementById("progress");
+    root.textContent = "";
+    var exs = DATA.exercises;
+    if (!exs.length) { root.appendChild(el("p", { class: "empty", text: "No exercises logged yet." })); return; }
+    if (!exs.some(function (e) { return e.id === state.exercise; })) state.exercise = exs[0].id;
+    var ex = exs.filter(function (e) { return e.id === state.exercise; })[0];
+
+    var sel = el("select", { "aria-label": "Exercise" });
+    exs.forEach(function (e) {
+      var o = el("option", { value: e.id, text: e.name });
+      if (e.id === ex.id) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener("change", function () { state.exercise = sel.value; remember(); renderProgress(); });
+    root.appendChild(el("div", { class: "row" }, [sel]));
+
+    var tiles = el("div", { class: "tiles" });
+    if (ex.measure === "hold") {
+      var longest = ex.holds.reduce(function (a, h) { return !a || h.seconds > a.seconds ? h : a; }, null);
+      tiles.appendChild(el("div", { class: "card tile hero" }, [
+        el("div", { class: "label", text: "Longest hold" }),
+        el("div", { class: "value", text: longest ? trim(longest.seconds, 0) + " s" : "—" }),
+        el("div", { class: "note", text: longest ? "at " + load(longest.kg) + " · " + fmtDate(longest.date, true) : "" })]));
+    } else {
+      tiles.appendChild(el("div", { class: "card tile hero" }, [
+        el("div", { class: "label", text: "Best e1RM" }),
+        el("div", { class: "value", text: ex.e1rm ? load(ex.e1rm.kg) : "—" }),
+        el("div", { class: "note", text: ex.e1rm ? "from " + ex.e1rm.from + " · " + fmtDate(ex.e1rm.date, true) : "no qualifying set yet" })]));
+    }
+    tiles.appendChild(el("div", { class: "card tile" }, [
+      el("div", { class: "label", text: "Last logged" }),
+      el("div", { class: "value", text: ex.last_logged ? fmtDate(ex.last_logged, true) : "—" }),
+      el("div", { class: "note", text: "Primary: " + muscles(ex.primary_muscles) + (ex.secondary_muscles.length ? " · Secondary: " + muscles(ex.secondary_muscles) : "") })]));
+    root.appendChild(tiles);
+
+    if (ex.measure !== "hold") {
+      var card = el("div", { class: "card" }, [
+        el("h2", { text: "e1RM per session" }),
+        el("p", { class: "caption", text: "Best estimated one-rep max each session, from the full reps of regular and failure sets (Epley on reps + RIR)." })]);
+      var host = el("div");
+      card.appendChild(host);
+      root.appendChild(card);
+      var pts = ex.e1rm_history.map(function (r) { return { date: r.date, y: loadNum(r.kg), detail: "from " + r.from }; });
+      lineChart(host, pts, { fmt: function (v) { return trim(v, 1) + " " + state.unit; }, label: "e1RM per session for " + ex.name,
+                              emptyText: "No set qualifies for an e1RM yet.", singleNote: "The trend line appears after a second session." });
+      card.appendChild(el("details", null, [el("summary", { text: "Table" }),
+        tableOf(["Date", "e1RM", "From"], ex.e1rm_history.map(function (r) { return [fmtDate(r.date, true), load(r.kg), r.from]; }), [1])]));
+    }
+
+    var grid = el("div", { class: "grid2" });
+    if (ex.measure === "hold") {
+      grid.appendChild(el("div", { class: "card" }, [el("h2", { text: "Longest hold at each load" }),
+        tableOf(["Load", "Seconds", "Date"], ex.holds.map(function (h) { return [load(h.kg), trim(h.seconds, 0), fmtDate(h.date, true)]; }), [1])]));
+    } else {
+      grid.appendChild(el("div", { class: "card" }, [el("h2", { text: "Heaviest for each rep count" }),
+        el("p", { class: "caption", text: "Full reps only, from regular and failure sets." }),
+        ex.rep_max.length ? tableOf(["Reps", "Load", "Set", "Date"], ex.rep_max.map(function (r) { return [r.reps, load(r.kg), r.from, fmtDate(r.date, true)]; }), [0, 1])
+                          : el("p", { class: "empty", text: "None yet." })]));
+    }
+    var side = el("div");
+    side.appendChild(el("div", { class: "card" }, [el("h2", { text: "Latest cues" }),
+      ex.cues.length ? el("ul", { class: "cues" }, ex.cues.map(function (c) {
+        return el("li", null, [c.cue, el("span", { class: "date", text: fmtDate(c.date) })]); }))
+                     : el("p", { class: "empty", text: "No cues recorded." })]));
+    if (ex.best_sets.length) {
+      side.appendChild(el("div", { class: "card" }, [el("h2", { text: "Best drop and myo sets" }),
+        el("p", { class: "caption", text: "Most total load moved. These never count as PRs." }),
+        tableOf(["Type", "Set", "Date"], ex.best_sets.map(function (b) { return [b.type, b.segments, fmtDate(b.date, true)]; }))]));
+    }
+    grid.appendChild(side);
+    root.appendChild(grid);
+  }
+
+  // ---------- Volume ----------
+
+  var RAMP_LIGHT = ["#cde2fb", "#b7d3f6", "#9ec5f4", "#86b6ef", "#6da7ec", "#5598e7", "#3987e5", "#2a78d6", "#256abf", "#1c5cab", "#184f95", "#104281", "#0d366b"];
+  function isDark() {
+    var t = document.documentElement.getAttribute("data-theme");
+    if (t) return t === "dark";
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  function rampColor(v, max) {
+    var ramp = isDark() ? RAMP_LIGHT.slice().reverse() : RAMP_LIGHT;
+    var i = Math.min(ramp.length - 1, Math.round((v / max) * (ramp.length - 1)));
+    return ramp[Math.max(0, i)];
+  }
+  function inkFor(hex) {
+    var n = parseInt(hex.slice(1), 16), r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+    function lin(c) { return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+    var L = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+    return L > 0.3 ? "#0b0b0b" : "#ffffff";
+  }
+
+  function renderVolume() {
+    var root = document.getElementById("volume");
+    root.textContent = "";
+    var v = DATA.volume;
+    var card = el("div", { class: "card" }, [el("h2", { text: "Hard sets per muscle, by week" }),
+      el("p", { class: "caption", text: "Weeks start Monday. Every non-warm-up set counts 1 for its primary muscles and 0.5 for its secondary muscles; a drop or myo-rep set is one set." })]);
+    root.appendChild(card);
+    if (!v.weeks.length) { card.appendChild(el("p", { class: "empty", text: "No working sets yet." })); return; }
+    var max = 10;
+    v.muscles.forEach(function (mu) { v.table[mu].forEach(function (x) { if (x > max) max = x; }); });
+    var t = el("table", { class: "heat" });
+    var hr = el("tr", null, [el("th", { text: "Muscle" })]);
+    v.weeks.forEach(function (w) { hr.appendChild(el("th", { class: "week", text: fmtDate(w) })); });
+    t.appendChild(el("thead", null, [hr]));
+    var tb = el("tbody");
+    v.muscles.forEach(function (mu) {
+      var row = el("tr", null, [el("td", { class: "m", text: mu.replace(/-/g, " ") })]);
+      v.table[mu].forEach(function (x, i) {
+        var td = el("td", { class: "cell", text: x ? trim(x, 1) : "", title: mu.replace(/-/g, " ") + ", week of " + fmtDate(v.weeks[i], true) + ": " + trim(x, 1) + " sets" });
+        if (x) { var c = rampColor(x, max); td.style.background = c; td.style.color = inkFor(c); }
+        row.appendChild(td);
+      });
+      tb.appendChild(row);
+    });
+    t.appendChild(tb);
+    card.appendChild(el("div", { class: "scrollx" }, [t]));
+    var leg = el("div", { class: "legend" }, [el("span", { text: "fewer" })]);
+    [0.1, 0.3, 0.5, 0.7, 0.9, 1].forEach(function (f) { var sw = el("span", { class: "sw" }); sw.style.background = rampColor(f * max, max); leg.appendChild(sw); });
+    leg.appendChild(el("span", { text: "more (" + trim(max, 1) + "+ sets)" }));
+    card.appendChild(leg);
+  }
+
+  // ---------- Recovery ----------
+
+  function renderRecovery() {
+    var root = document.getElementById("recovery");
+    root.textContent = "";
+    var sess = DATA.sessions.slice().reverse();
+    root.appendChild(el("p", { class: "caption", text: "One chart per measure, all on the same dates, so they can be compared without mixing scales." }));
+    var grid = el("div", { class: "small-multiples" });
+    root.appendChild(grid);
+    var metrics = [
+      { key: "readiness", title: "Readiness", dom: [1, 10], fmt: function (v) { return trim(v, 1); } },
+      { key: "sleep_score", title: "Sleep score", dom: [0, 100], fmt: function (v) { return trim(v, 0); } },
+      { key: "hrv_ms", title: "HRV", fmt: function (v) { return trim(v, 0) + " ms"; } },
+      { key: "session_rpe", title: "Session RPE", dom: [1, 10], fmt: function (v) { return trim(v, 1); } },
+      { key: "training_load", title: "Training load (session RPE × minutes)", fmt: function (v) { return trim(v, 0); } },
+      { key: "bodyweight_kg", title: "Bodyweight", conv: true, fmt: function (v) { return trim(v, 1) + " " + state.unit; } },
+    ];
+    var hosts = [];
+    metrics.forEach(function (mt) {
+      var host = el("div");
+      grid.appendChild(el("div", { class: "card" }, [el("h3", { text: mt.title }), host]));
+      hosts.push([host, mt]);
+    });
+    hosts.forEach(function (pair) {
+      var mt = pair[1];
+      var pts = sess.filter(function (s) { return s[mt.key] != null; }).map(function (s) {
+        return { date: s.date, y: mt.conv ? loadNum(s[mt.key]) : s[mt.key] }; });
+      lineChart(pair[0], pts, { height: 150, yDomain: mt.dom, fmt: mt.fmt, label: mt.title, emptyText: "Not recorded yet." });
+    });
+    var card = el("div", { class: "card" }, [el("h2", { text: "Table" })]);
+    card.appendChild(tableOf(["Date", "Readiness", "Sleep", "HRV", "Session RPE", "Minutes", "Load", "Bodyweight"],
+      DATA.sessions.map(function (s) { return [fmtDate(s.date, true), s.readiness, s.sleep_score, s.hrv_ms, s.session_rpe, s.minutes, s.training_load,
+                                                s.bodyweight_kg != null ? load(s.bodyweight_kg) : null]; }), [1, 2, 3, 4, 5, 6, 7]));
+    root.appendChild(card);
+  }
+
+  // ---------- Sessions ----------
+
+  function renderSessions() {
+    var root = document.getElementById("sessions");
+    root.textContent = "";
+    var card = el("div", { class: "card" });
+    root.appendChild(card);
+    if (!DATA.sessions.length) { card.appendChild(el("p", { class: "empty", text: "No sessions yet." })); return; }
+    DATA.sessions.forEach(function (s, idx) {
+      var bits = [];
+      if (s.start && s.end) bits.push(s.start + "–" + s.end);
+      if (s.location) bits.push(s.location);
+      bits.push(s.hard_sets + " hard sets");
+      if (s.session_rpe != null) bits.push("session RPE " + trim(s.session_rpe, 1));
+      var det = el("details", { class: "session" });
+      if (idx === 0) det.open = true;
+      det.appendChild(el("summary", null, [el("span", { class: "d", text: fmtLong(s.date) }), el("span", { class: "m", text: bits.join(" · ") })]));
+      var mets = [];
+      if (s.readiness != null) mets.push("readiness " + s.readiness);
+      if (s.sleep_score != null) mets.push("sleep " + s.sleep_score);
+      if (s.hrv_ms != null) mets.push("HRV " + s.hrv_ms + " ms");
+      if (s.bodyweight_kg != null) mets.push("bodyweight " + load(s.bodyweight_kg));
+      if (s.training_load != null) mets.push("load " + s.training_load);
+      if (mets.length) det.appendChild(el("p", { class: "metrics", text: mets.join(" · ") }));
+      if (s.notes) det.appendChild(el("p", { class: "setnote", text: s.notes }));
+      var group = null, rows = null, n = 0;
+      s.sets.forEach(function (st) {
+        n += 1;
+        var key = st.superset ? "superset " + st.superset[0] : st.exercise;
+        if (key !== group) {
+          group = key;
+          var title = st.superset ? "Superset " + st.superset[0] : st.exercise;
+          var extra = !st.superset && st.gear.length ? st.gear.join(", ") : "";
+          det.appendChild(el("div", { class: "exname" }, [title, extra ? el("small", { text: "  " + extra }) : null]));
+          if (st.superset) {
+            var seen = {};
+            s.sets.forEach(function (o) { if (o.superset && o.superset[0] === st.superset[0] && !seen[o.superset]) seen[o.superset] = o.exercise; });
+            Object.keys(seen).sort().forEach(function (k) { det.appendChild(el("div", { class: "setnote", text: k + " " + seen[k] })); });
+          }
+          var t = el("table", { class: "sets" });
+          var cg = el("colgroup");
+          ["36px", "120px", "170px", "70px", "auto"].forEach(function (w) { var c = el("col"); c.style.width = w; cg.appendChild(c); });
+          t.appendChild(cg);
+          rows = el("tbody");
+          t.appendChild(rows);
+          det.appendChild(el("div", { class: "scrollx" }, [t]));
+        }
+        var desc = el("td");
+        var noteBits = [];
+        if (st.cue) desc.appendChild(el("div", { class: "setnote" }, [el("b", { text: "Cue: " }), st.cue]));
+        if (st.notes) desc.appendChild(el("div", { class: "setnote", text: st.notes }));
+        if (st.mode !== "bilateral") noteBits.push(st.mode);
+        if (st.superset && st.gear.length) noteBits.push(st.gear.join(", "));
+        if (noteBits.length) desc.appendChild(el("div", { class: "setnote", text: noteBits.join(" · ") }));
+        rows.appendChild(el("tr", null, [
+          el("td", { class: "num", text: String(n) }),
+          el("td", { class: "nw", text: (st.superset ? st.superset + " " : "") + st.type }),
+          el("td", { text: st.segments }),
+          el("td", { class: "nw", text: st.effort || "" }),
+          desc]));
+      });
+      card.appendChild(det);
+    });
+  }
+
+  // ---------- shell ----------
+
+  function renderAll() {
+    var s = DATA.sessions[0];
+    document.getElementById("summary").textContent = s
+      ? DATA.sessions.length + " session" + (DATA.sessions.length === 1 ? "" : "s") + " logged · last " + fmtLong(s.date) + (s.location ? " at " + s.location : "")
+      : "No sessions logged yet.";
+    document.getElementById("footer").textContent = "Data refreshed " + new Date(DATA.generated).toLocaleString() + ". Set text shows loads as entered; computed numbers follow the unit toggle.";
+    renderProgress(); renderVolume(); renderRecovery(); renderSessions();
+  }
+
+  function showTab(name) {
+    state.tab = name; remember();
+    document.querySelectorAll("nav.tabs button").forEach(function (b) { b.setAttribute("aria-selected", String(b.dataset.tab === name)); });
+    ["progress", "volume", "recovery", "sessions"].forEach(function (id) { document.getElementById(id).hidden = id !== name; });
+    if (DATA) { if (name === "progress") renderProgress(); if (name === "recovery") renderRecovery(); }
+  }
+  document.querySelectorAll("nav.tabs button").forEach(function (b) {
+    b.addEventListener("click", function () { showTab(b.dataset.tab); });
+  });
+  document.querySelectorAll(".seg button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      state.unit = b.dataset.unit; remember();
+      document.querySelectorAll(".seg button").forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      if (DATA) renderAll();
+    });
+    b.setAttribute("aria-pressed", String(b.dataset.unit === state.unit));
+  });
+  var resizeTimer = null;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () { if (DATA) { if (state.tab === "progress") renderProgress(); if (state.tab === "recovery") renderRecovery(); } }, 150);
+  });
+  if (window.matchMedia) {
+    var mq = window.matchMedia("(prefers-color-scheme: dark)");
+    if (mq.addEventListener) mq.addEventListener("change", function () { if (DATA) renderVolume(); });
+  }
+
+  showTab(["progress", "volume", "recovery", "sessions"].indexOf(state.tab) >= 0 ? state.tab : "progress");
+  fetch("data/stats.json", { cache: "no-cache" })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (d) { DATA = d; renderAll(); showTab(state.tab); })
+    .catch(function () {
+      document.getElementById("summary").textContent = "Couldn't load data/stats.json. Open this page through GitHub Pages or a local web server, not as a file.";
+    });
+})();
+</script>
+</body>
+</html>

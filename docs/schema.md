@@ -91,6 +91,13 @@ What the skill builds from pasted notes and hands to `lift.py preview` / `add` /
 
 Sets appear in the order performed. Ids, `order`, and `logged_at` are filled in on write.
 
+## stats.json
+
+`data/stats.json` is generated, never edited by hand: `liftlog/stats.py` writes every number the
+dashboard shows (per-exercise e1RM history, rep maxes, best sets, cues; the weekly volume grid;
+each session with its sets). It's rebuilt after every write, so it's always committed alongside
+the three JSONL files.
+
 ## Computed, never stored
 
 - **e1RM**: Epley, `load × (1 + reps to failure / 30)`, where reps to failure = full reps +

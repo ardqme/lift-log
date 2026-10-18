@@ -5,7 +5,7 @@ import datetime as dt
 import json
 import sys
 
-from . import calc, schema, store, validate
+from . import calc, schema, stats, store, validate
 
 
 def _load_bundle(path):
@@ -136,7 +136,9 @@ def cmd_add(args):
     sid = _new_session_id(db, bundle["session"]["date"])
     sess, sets = _write_bundle(db, bundle, sid)
     print(f"Wrote session {sid}: {len(sets)} sets, {len(bundle.get('new_exercises', []))} new exercises.")
-    _report_prs(store.load_all(), sid)
+    db = store.load_all()
+    write_stats(db)
+    _report_prs(db, sid)
 
 
 def cmd_replace(args):
@@ -152,7 +154,9 @@ def cmd_replace(args):
         _fail(errors)
     _write_bundle(db, bundle, args.session_id)
     print(f"Replaced session {args.session_id}.")
-    _report_prs(store.load_all(), args.session_id)
+    db = store.load_all()
+    write_stats(db)
+    _report_prs(db, args.session_id)
 
 
 def cmd_put_exercise(args):
@@ -169,7 +173,22 @@ def cmd_put_exercise(args):
     if errors:
         _fail(errors)
     store.write("exercises", db["exercises"])
+    write_stats()
     print(f"{action} exercise {ex['id']}.")
+
+
+def write_stats(db=None):
+    """Refresh data/stats.json, which the dashboard reads."""
+    db = db or store.load_all()
+    path = store.data_dir() / "stats.json"
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(stats.build(db), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    tmp.replace(path)
+    return path
+
+
+def cmd_stats(args):
+    print(f"Wrote {write_stats()}.")
 
 
 def _report_prs(db, sid):
@@ -336,6 +355,7 @@ def main(argv=None):
         (("exercise",), {}), (("--last",), {"type": int, "default": 5}))
     add("load", cmd_load, "session RPE × minutes per session", (("--last",), {"type": int, "default": 10}))
     add("validate", cmd_validate, "check every stored record")
+    add("stats", cmd_stats, "rebuild data/stats.json for the dashboard")
 
     args = p.parse_args(argv)
     args.fn(args)
