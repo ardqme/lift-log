@@ -289,8 +289,9 @@ def cmd_prs(args):
               f"({b['date']})")
     else:
         print("  no e1RM yet")
-    for n, r in result["rep_max"].items():
-        print(f"  {n:>2}-rep max {calc.show(r['load_kg'])}  ({r['date']}, {calc.format_segment(r['segment'], ex)})")
+    for n, r in sorted(result["rep_max"].items()):
+        e1 = f"  e1RM {calc.show(r['e1rm'])}" if r["e1rm"] is not None else ""
+        print(f"  {n:>2}-rep max {calc.show(r['load_kg'])}  ({r['date']}, {calc.format_segment(r['segment'], ex)}){e1}")
     for kind, r in calc.best_sets(db, ex).items():
         segs = ", ".join(calc.format_segment(s, ex) for s in r["set"]["segments"])
         print(f"  best {kind} set: {segs}  ({r['date']})")

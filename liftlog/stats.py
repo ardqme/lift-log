@@ -17,21 +17,6 @@ def _effort(st):
     return " ".join(parts)
 
 
-def _collapse_rep_max(rep_max, ex):
-    """Runs of rep counts set by the same set become one row: 1–5 from 115kg×5, 6 from 100kg×6.
-
-    `reps` is kept as the top of the run so older readers of stats.json still work.
-    """
-    rows = []
-    for n, r in sorted(rep_max.items()):
-        if rows and rows[-1]["set_id"] == r["set_id"] and rows[-1]["reps_to"] == n - 1:
-            rows[-1]["reps_to"] = rows[-1]["reps"] = n
-            continue
-        rows.append({"reps_from": n, "reps_to": n, "reps": n, "kg": r["load_kg"], "date": r["date"],
-                     "set_id": r["set_id"], "from": calc.format_segment(r["segment"], ex)})
-    return rows
-
-
 def _pr_flags(db):
     """{set_id: 'e1rm' | 'rep_max'} for every set that beat all earlier sessions.
 
@@ -65,7 +50,8 @@ def _exercise_block(db, ex):
     p = calc.prs(db, ex)
     sessions = {s["id"]: s for s in db["sessions"]}
     block = {
-        "id": ex["id"], "name": ex["name"], "load_type": ex["load_type"], "measure": ex["measure"],
+        "id": ex["id"], "name": ex["name"], "main": bool(ex.get("main")),
+        "load_type": ex["load_type"], "measure": ex["measure"],
         "primary_muscles": ex["primary_muscles"], "secondary_muscles": ex.get("secondary_muscles", []),
         "e1rm_history": [{"date": r["date"], "session_id": r["session_id"], "kg": r["e1rm"],
                           "from": calc.format_segment(r["segment"], ex)}
@@ -81,7 +67,9 @@ def _exercise_block(db, ex):
         b = p["e1rm"]
         if b:
             block["e1rm"] = {"kg": b["e1rm"], "date": b["date"], "from": calc.format_segment(b["segment"], ex)}
-        block["rep_max"] = _collapse_rep_max(p["rep_max"], ex)
+        block["rep_max"] = [{"reps": n, "kg": r["load_kg"], "e1rm_kg": r["e1rm"], "date": r["date"],
+                             "set_id": r["set_id"], "from": calc.format_segment(r["segment"], ex)}
+                            for n, r in sorted(p["rep_max"].items())]
     for kind, r in calc.best_sets(db, ex).items():
         block["best_sets"].append({"type": kind, "date": r["date"], "volume_kg": r["volume_kg"],
                                    "segments": ", ".join(calc.format_segment(s, ex) for s in r["set"]["segments"])})

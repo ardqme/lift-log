@@ -36,7 +36,6 @@ TIMEZONE = "America/Los_Angeles"
 # e1RM rules
 E1RM_MAX_REPS = 12   # sets with more full reps than this are left out
 E1RM_MAX_RIR = 4     # sets easier than RPE 6 (RIR above 4) are left out
-REP_MAX_RANGE = range(1, 11)  # rep maxes tracked for 1 through 10 reps
 
 # Weekly volume: credit a set gives each muscle
 PRIMARY_CREDIT = 1.0

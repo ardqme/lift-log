@@ -26,6 +26,8 @@
   --wash: rgba(11,11,11,0.045);
   --series-1: #2a78d6;
   --series-1-soft: rgba(42,120,214,0.30);
+  --series-2: #eb6834;
+  --series-2-soft: rgba(235,104,52,0.22);
   --accent-ink: #1c5cab;
   --pr: #b8860b;
   --pr-wash: rgba(237,161,0,0.14);
@@ -50,6 +52,8 @@
     --wash: rgba(255,255,255,0.06);
     --series-1: #3987e5;
     --series-1-soft: rgba(57,135,229,0.35);
+    --series-2: #d95926;
+    --series-2-soft: rgba(217,89,38,0.28);
     --accent-ink: #86b6ef;
     --pr: #eda100;
     --pr-wash: rgba(237,161,0,0.16);
@@ -70,6 +74,8 @@
   --wash: rgba(255,255,255,0.06);
   --series-1: #3987e5;
   --series-1-soft: rgba(57,135,229,0.35);
+  --series-2: #d95926;
+  --series-2-soft: rgba(217,89,38,0.28);
   --accent-ink: #86b6ef;
   --pr: #eda100;
   --pr-wash: rgba(237,161,0,0.16);
@@ -152,7 +158,7 @@ button { font: inherit; color: inherit; }
 .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
 .stack { display: flex; flex-direction: column; gap: 14px; }
 .section-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 22px 0 8px; }
-.section-h h2 { font: 600 12px/1.2 var(--font-body); text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); margin: 0; }
+.section-h h2 { font: 600 13px/1.2 var(--font-body); letter-spacing: 0.02em; color: var(--text-secondary); margin: 0; }
 .section-h a { font-size: 13px; color: var(--accent-ink); text-decoration: none; }
 .caption { color: var(--text-muted); font-size: 13px; margin: 0 0 10px; }
 .empty { color: var(--text-muted); font-size: 14px; padding: 6px 0; }
@@ -233,7 +239,7 @@ details.sess[open] > summary .caret { transform: rotate(180deg); }
 .hero { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 22px; }
 .hero .v { font: 600 56px/0.95 var(--font-display); letter-spacing: -0.015em; }
 .hero .u { font-size: 16px; color: var(--text-muted); margin-left: 6px; }
-.hero .lab { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; }
+.hero .lab { font-size: 13px; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.02em; }
 .hero .side { display: flex; flex-direction: column; gap: 2px; color: var(--text-secondary); font-size: 13px; }
 .chart { position: relative; }
 .chart svg { display: block; width: 100%; overflow: visible; }
@@ -245,8 +251,19 @@ details.sess[open] > summary .caret { transform: rotate(180deg); }
 .tooltip span { color: var(--text-secondary); }
 .legend { display: flex; align-items: center; gap: 14px; color: var(--text-muted); font-size: 12px; margin-top: 8px; flex-wrap: wrap; }
 .legend i { display: inline-block; vertical-align: middle; margin-right: 5px; }
-.legend .l { width: 16px; height: 2px; background: var(--series-1); }
+.legend .l { width: 16px; height: 2px; background: var(--series-2); }
 .legend .d { width: 9px; height: 9px; border-radius: 50%; background: var(--series-1-soft); }
+.picker { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; margin-bottom: 14px; }
+.mains { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; flex: 1 1 320px; }
+.mainbtn { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-1); text-decoration: none; min-width: 0; }
+.mainbtn .n { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mainbtn .v { font: 600 22px/1 var(--font-display); }
+.mainbtn .v small { font: 400 11px/1 var(--font-body); color: var(--text-muted); margin-left: 3px; }
+.mainbtn[aria-current="true"] { border-color: var(--text-primary); background: var(--wash); }
+.mainbtn:hover { border-color: var(--axis); }
+.mainbtn:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+.picker select { flex: 1 1 200px; font: inherit; font-size: 14px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary); max-width: 100%; min-width: 0; }
+.picker select[data-active="true"] { border-color: var(--text-primary); background: var(--wash); font-weight: 600; }
 .two { display: grid; grid-template-columns: 1fr; gap: 14px; }
 @media (min-width: 860px) { .two { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .bars { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 6px 10px; align-items: center; }
@@ -277,6 +294,40 @@ ul.cues .date { color: var(--text-muted); font-size: 12px; margin-left: 6px; }
 .heat .mh { position: sticky; left: 0; background: var(--surface-1); color: var(--text-secondary); padding-right: 10px; z-index: 1; white-space: nowrap; }
 .heat .wh { justify-content: center; color: var(--text-muted); white-space: nowrap; font-size: 11px; }
 .heat .cell { justify-content: center; border-radius: 6px; font-variant-numeric: tabular-nums; }
+.heat .mh.linkish { border: 0; font: inherit; text-align: left; cursor: pointer; border-radius: 6px; padding-left: 6px; }
+.heat .mh.linkish:hover, .heat .mh.cur { color: var(--text-primary); font-weight: 600; }
+.heat .wh.cur { color: var(--text-primary); font-weight: 600; }
+.heat .cell.cur { outline: 2px solid var(--text-primary); outline-offset: -2px; }
+.linkish { background: none; border: 0; color: var(--accent-ink); font-size: 13px; cursor: pointer; padding: 0; }
+.linkish:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; border-radius: 4px; }
+.weeknav { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.weeknav .wk { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-1); cursor: pointer; font-size: 18px; line-height: 1; }
+.weeknav .wk:disabled { opacity: 0.35; cursor: default; }
+.weeknav .wk:focus-visible { outline: 2px solid var(--series-1); }
+.weeknav .wkl { flex: 1; text-align: center; font-size: 14px; color: var(--text-secondary); }
+.weeknav .wkl b { color: var(--text-primary); }
+.figures { display: flex; justify-content: center; gap: 4%; padding: 6px 0 2px; }
+.fig { display: flex; flex-direction: column; align-items: center; gap: 4px; width: min(46%, 190px); }
+.figl { font-size: 12px; color: var(--text-muted); }
+.figure { display: block; width: 100%; height: auto; overflow: visible; }
+.figure .sil { fill: var(--surface-2); stroke: var(--grid); stroke-width: 1; }
+.figure .mus { fill: var(--surface-2); stroke: var(--surface-1); stroke-width: 1.2; cursor: pointer; transition: stroke .12s, stroke-width .12s; }
+.figure .mus:hover { stroke: var(--text-secondary); stroke-width: 1.6; }
+.figure .mus[aria-pressed="true"] { stroke: var(--text-primary); stroke-width: 2.2; }
+.figure .mus:focus-visible { outline: none; stroke: var(--series-1); stroke-width: 2.2; }
+.bignum { display: flex; align-items: baseline; gap: 8px; margin: 2px 0 10px; }
+.bignum .v { font: 600 40px/1 var(--font-display); }
+.bignum .u { color: var(--text-secondary); font-size: 13px; }
+.weekcols { display: flex; align-items: flex-end; gap: 4px; height: 110px; }
+.weekcols .wc { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px; border: 0; background: none; padding: 0; cursor: pointer; }
+.weekcols .wc .bar { width: 100%; max-width: 28px; background: var(--series-1-soft); border-radius: 4px 4px 0 0; }
+.weekcols .wc.cur .bar { background: var(--series-1); }
+.weekcols .wc .n { font-size: 11px; color: var(--text-muted); }
+.weekcols .wc.cur .n { color: var(--text-primary); font-weight: 600; }
+.weekcols .wc:focus-visible { outline: 2px solid var(--series-1); border-radius: 4px; }
+.weekaxis { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 11px; border-top: 1px solid var(--axis); padding-top: 4px; margin-top: 2px; }
+.weekbars .l.linkish { text-align: left; color: var(--text-secondary); text-transform: none; }
+.weekbars .l.linkish:hover { color: var(--accent-ink); }
 .ramp { display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 12px; margin-top: 10px; flex-wrap: wrap; }
 .ramp .sw { width: 22px; height: 12px; border-radius: 3px; display: inline-block; }
 .small-multiples { display: grid; grid-template-columns: 1fr; gap: 12px; }
@@ -290,7 +341,7 @@ td.num, th.num { text-align: right; }
 .scrollx { overflow-x: auto; }
 details.plain > summary { cursor: pointer; color: var(--text-secondary); font-size: 13px; }
 .weekbars { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 5px 10px; align-items: center; }
-.weekbars .l { font-size: 13px; color: var(--text-secondary); white-space: nowrap; text-transform: capitalize; }
+.weekbars .l { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
 .weekbars .b { height: 12px; border-radius: 0 4px 4px 0; background: var(--series-1); min-width: 2px; }
 .weekbars .v { font-size: 13px; }
 
@@ -350,6 +401,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
   function el(tag, attrs, children) {
     var node = document.createElement(tag);
     if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (attrs[k] == null) return;
       if (k === "text") node.textContent = attrs[k];
       else if (k === "class") node.className = attrs[k];
       else if (k === "html") node.innerHTML = attrs[k];
@@ -428,12 +480,21 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     if (points.length > 1) {
       var d = points.map(function (p, i) { return (i ? "L" : "M") + x(i).toFixed(1) + " " + y(p.kg).toFixed(1); }).join(" ");
       s.appendChild(svg("path", { d: d + " L" + x(points.length - 1).toFixed(1) + " " + H + " L" + x(0).toFixed(1) + " " + H + " Z",
-                                  fill: "var(--series-1-soft)", opacity: 0.35 }));
-      s.appendChild(svg("path", { d: d, fill: "none", stroke: "var(--series-1)", "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+                                  fill: "var(--series-2-soft)", opacity: 0.5 }));
+      s.appendChild(svg("path", { d: d, fill: "none", stroke: "var(--series-2)", "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
     }
     var last = points[points.length - 1];
-    s.appendChild(svg("circle", { cx: x(points.length - 1), cy: y(last.kg), r: 3.5, fill: "var(--series-1)", stroke: "var(--surface-1)", "stroke-width": 2 }));
+    s.appendChild(svg("circle", { cx: x(points.length - 1), cy: y(last.kg), r: 3.5, fill: "var(--series-2)", stroke: "var(--surface-1)", "stroke-width": 2 }));
     return s;
+  }
+
+  function shortName(ex) {
+    var n = ex.name;
+    if (/squat/i.test(n)) return "Squat";
+    if (/bench/i.test(n)) return "Bench";
+    if (/deadlift/i.test(n)) return "Deadlift";
+    if (/overhead|press/i.test(n)) return "Press";
+    return n;
   }
 
   function sessionSets(exId, workingOnly) {
@@ -516,13 +577,13 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     });
     if (line.length > 1) {
       var d = line.map(function (p, i) { return (i ? "L" : "M") + x(p.date).toFixed(1) + " " + y(p.y).toFixed(1); }).join(" ");
-      s.appendChild(svg("path", { d: d, fill: "none", stroke: "var(--series-1)", "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+      s.appendChild(svg("path", { d: d, fill: "none", stroke: "var(--series-2)", "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
     }
     var cross = svg("line", { y1: m.t, y2: m.t + ih, stroke: "var(--axis)", "stroke-width": 1, visibility: "hidden" });
-    var ring = svg("circle", { r: 7, fill: "var(--series-1)", stroke: "var(--surface-1)", "stroke-width": 2, visibility: "hidden" });
+    var ring = svg("circle", { r: 7, fill: "var(--series-2)", stroke: "var(--surface-1)", "stroke-width": 2, visibility: "hidden" });
     s.appendChild(cross);
     line.forEach(function (p) {
-      s.appendChild(svg("circle", { cx: x(p.date), cy: y(p.y), r: 4.5, fill: "var(--series-1)", stroke: "var(--surface-1)", "stroke-width": 2 }));
+      s.appendChild(svg("circle", { cx: x(p.date), cy: y(p.y), r: 4.5, fill: "var(--series-2)", stroke: "var(--surface-1)", "stroke-width": 2 }));
     });
     s.appendChild(ring);
     if (line.length) {
@@ -634,14 +695,15 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     return el("div", { class: "player" }, [frame, el("div", { class: "cap", text: caption })]);
   }
 
-  function setChip(st, s) {
+  function setChip(st, s, opts) {
+    opts = opts || {};
     var chip = el("span", { class: "set" + (st.type === "warm-up" ? " w" : "") + (st.pr ? " pr" : "") });
     if (st.mode !== "bilateral") chip.appendChild(el("span", { class: "typ", text: st.mode }));
     if (st.type !== "warm-up" && st.type !== "regular") chip.appendChild(el("span", { class: "typ", text: st.type }));
     chip.appendChild(el("span", { text: setText(st) }));
     if (st.effort) chip.appendChild(el("span", { class: "eff", text: st.effort }));
     if (st.pr) chip.appendChild(el("span", { class: "star", title: st.pr === "e1rm" ? "e1RM PR" : "rep-max PR", "aria-label": "PR", text: "★" }));
-    if (st.video_id) {
+    if (st.video_id && !opts.hideVideo) {
       var b = el("button", { type: "button", class: "vid", "aria-expanded": "false", title: "Play video", text: "▶" });
       b.addEventListener("click", function () {
         var open = b.getAttribute("aria-expanded") === "true";
@@ -659,7 +721,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     return chip;
   }
 
-  function exerciseBlock(s, sets, label) {
+  function exerciseBlock(s, sets, label, opts) {
     // sets: this exercise's sets in this session, in order. label: superset tag like "A1".
     var ex = EX[sets[0].exercise_id];
     var block = el("div", { class: "block" });
@@ -672,7 +734,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     var lastWarm = -1;
     sets.forEach(function (st, i) { if (st.type === "warm-up") lastWarm = i; });
     sets.forEach(function (st, i) {
-      line.appendChild(setChip(st, s));
+      line.appendChild(setChip(st, s, opts));
       if (i === lastWarm && i < sets.length - 1) line.appendChild(el("span", { class: "sep", text: "|" }));
     });
     block.appendChild(line);
@@ -685,7 +747,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     return block;
   }
 
-  function sessionCard(s, open, withLink) {
+  function sessionCard(s, open, withLink, opts) {
     var det = el("details", { class: "card sess", id: "session-" + s.id });
     if (open) det.open = true;
     var bits = [];
@@ -714,7 +776,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
       if (!seen[key]) { seen[key] = { key: key, label: st.superset, sets: [] }; groups.push(seen[key]); }
       seen[key].sets.push(st);
     });
-    groups.forEach(function (g) { det.appendChild(exerciseBlock(s, g.sets, g.label)); });
+    groups.forEach(function (g) { det.appendChild(exerciseBlock(s, g.sets, g.label, opts)); });
     if (withLink) det.appendChild(el("p", { class: "caption", style: "margin:12px 0 0" }, [el("a", { href: "#sessions", text: "All sessions →", style: "color:var(--accent-ink);text-decoration:none" })]));
     return det;
   }
@@ -725,12 +787,11 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     root.appendChild(el("h2", { class: "viewtitle", text: "Overview" }));
     if (!DATA.sessions.length) { root.appendChild(el("p", { class: "empty", text: "No sessions logged yet." })); return; }
     var grid = el("div", { class: "lifts" });
-    EXLIST.forEach(function (ex) {
-      if (!ex.e1rm_history.length && !ex.holds.length) return;
+    var mains = EXLIST.filter(function (e) { return e.main; });
+    (mains.length ? mains : EXLIST).forEach(function (ex) {
       var lastSess = null;
       DATA.sessions.some(function (s) { if (s.sets.some(function (st) { return st.exercise_id === ex.id; })) { lastSess = s; return true; } return false; });
       var best = lastSess ? bestWorkingSet(lastSess, ex.id) : null;
-      var hasVideo = lastSess && lastSess.sets.some(function (st) { return st.exercise_id === ex.id && st.video_id; });
       var card = el("a", { class: "card lift", href: "#lift/" + ex.id });
       card.appendChild(el("div", { class: "name", text: ex.name }));
       if (ex.measure === "hold") {
@@ -747,8 +808,8 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
       var foot = el("div", { class: "foot" });
       if (best && lastSess) foot.appendChild(el("span", { class: "num" }, [
         el("span", { class: "mono", text: setText(best) + (best.effort ? " " + best.effort : "") }),
-        " · " + fmtDate(lastSess.date) + (hasVideo ? " · ▶ video" : "")]));
-      if (ex.cues.length) foot.appendChild(el("span", { class: "cue", text: ex.cues[0].cue }));
+        " · " + fmtDate(lastSess.date)]));
+      else foot.appendChild(el("span", { class: "cue", text: "not logged yet" }));
       card.appendChild(foot);
       grid.appendChild(card);
     });
@@ -756,7 +817,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
 
     var last = DATA.sessions[0];
     root.appendChild(el("div", { class: "section-h" }, [el("h2", { text: "Last session" }), el("a", { href: "#sessions", text: "All sessions" })]));
-    root.appendChild(sessionCard(last, true, false));
+    root.appendChild(sessionCard(last, true, false, { hideVideo: true }));
 
     var v = DATA.volume;
     if (v.weeks.length) {
@@ -783,15 +844,33 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
   function renderLift(root, exId) {
     root.appendChild(el("h2", { class: "viewtitle", text: "Lifts" }));
     if (!EXLIST.length) { root.appendChild(el("p", { class: "empty", text: "No exercises logged yet." })); return; }
-    var ex = EX[exId] || EXLIST[0];
-    var chips = el("div", { class: "chips", role: "tablist" });
-    EXLIST.forEach(function (e) {
-      var c = el("a", { class: "chip", href: "#lift/" + e.id, text: e.name, role: "tab" });
-      if (e.id === ex.id) c.setAttribute("aria-current", "true");
-      chips.appendChild(c);
-    });
-    root.appendChild(chips);
-    requestAnimationFrame(function () { var cur = chips.querySelector("[aria-current]"); if (cur) cur.scrollIntoView({ block: "nearest", inline: "center" }); });
+    var mains = EXLIST.filter(function (e) { return e.main; }), accs = EXLIST.filter(function (e) { return !e.main; });
+    var ex = EX[exId] || mains[0] || EXLIST[0];
+    var picker = el("div", { class: "picker" });
+    if (mains.length) {
+      var mg = el("div", { class: "mains" });
+      mains.forEach(function (e) {
+        var a = el("a", { class: "mainbtn", href: "#lift/" + e.id, title: e.name });
+        if (e.id === ex.id) a.setAttribute("aria-current", "true");
+        a.appendChild(el("span", { class: "n", text: shortName(e) }));
+        a.appendChild(el("span", { class: "v num" }, [e.e1rm ? trim(loadNum(e.e1rm.kg), 0) : "—", e.e1rm ? el("small", { text: state.unit }) : null]));
+        mg.appendChild(a);
+      });
+      picker.appendChild(mg);
+    }
+    if (accs.length) {
+      var sel = el("select", { id: "accessory-pick", "aria-label": "Accessory lifts" });
+      sel.appendChild(el("option", { value: "", text: "Accessories (" + accs.length + ")…" }));
+      accs.forEach(function (e) {
+        var o = el("option", { value: e.id, text: e.name });
+        if (e.id === ex.id) o.selected = true;
+        sel.appendChild(o);
+      });
+      sel.setAttribute("data-active", String(!ex.main));
+      sel.addEventListener("change", function () { if (sel.value) go("#lift/" + sel.value); });
+      picker.appendChild(sel);
+    }
+    root.appendChild(picker);
 
     var hero = el("div", { class: "card hero" });
     var hist = ex.e1rm_history;
@@ -845,14 +924,15 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
       left.appendChild(hc);
     } else {
       var rc = el("div", { class: "card" }, [el("div", { class: "section-h", style: "margin:0 0 2px" }, [el("h2", { text: "Best by reps" })]),
-        el("p", { class: "caption", text: "Heaviest load lifted for at least that many full reps." })]);
+        el("p", { class: "caption", text: "Heaviest load at exactly that many full reps, with the e1RM that set implies." })]);
       if (!ex.rep_max.length) rc.appendChild(el("p", { class: "empty", text: "None yet." }));
       else {
         var bars = el("div", { class: "bars" }), max = Math.max.apply(null, ex.rep_max.map(function (r) { return r.kg; }));
         ex.rep_max.forEach(function (r) {
-          bars.appendChild(el("span", { class: "l", text: (r.reps_from === r.reps_to ? r.reps_from : r.reps_from + "–" + r.reps_to) + (r.reps_to === 1 ? " rep" : " reps") }));
+          bars.appendChild(el("span", { class: "l", text: r.reps + (r.reps === 1 ? " rep" : " reps") }));
           var b = el("div", { class: "b" }); b.style.width = (r.kg / max * 100) + "%"; bars.appendChild(b);
-          bars.appendChild(el("span", { class: "v num" }, [load(r.kg), el("small", { text: r.from + " · " + fmtDate(r.date) })]));
+          bars.appendChild(el("span", { class: "v num" }, [load(r.kg),
+            el("small", { text: (r.e1rm_kg != null ? "e1RM " + load(r.e1rm_kg) + " · " : "") + fmtDate(r.date) })]));
         });
         rc.appendChild(bars);
       }
@@ -927,33 +1007,179 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     return (0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)) > 0.3 ? "#0b0b0b" : "#ffffff";
   }
 
+  // ---------- body map ----------
+  // Each region is drawn for the right side of a 200×420 figure and mirrored for the left.
+  // Shapes are stylised, not anatomical drawings; they only need to be recognisable and tappable.
+  var BODY = {
+    head: "M100 8 Q120 8 120 28 Q120 48 100 48 Q80 48 80 28 Q80 8 100 8 Z",
+    torso: "M100 50 L110 52 L112 62 L132 68 Q140 72 138 100 L136 130 Q138 160 134 188 L100 190 Z",
+    arm: "M132 70 Q152 74 154 100 L160 150 L164 192 Q165 206 156 207 Q149 206 148 194 L142 150 L138 110 Q138 90 132 70 Z",
+    leg: "M100 188 L134 186 Q142 230 136 280 L136 300 Q141 340 136 385 L141 402 L118 404 L115 385 Q110 340 112 300 L112 280 Q106 250 102 232 L100 232 Z",
+    front: {
+      "front-delts": "M120 68 L134 68 Q140 78 138 92 Q130 94 124 88 Q118 78 120 68 Z",
+      "side-delts": "M134 68 Q152 72 154 96 Q148 100 142 96 Q140 80 134 68 Z",
+      "chest": "M100 72 L120 70 Q136 92 132 110 Q116 118 100 116 Z",
+      "biceps": "M138 98 Q150 104 150 136 Q144 142 138 138 Q134 118 138 98 Z",
+      "forearms": "M144 142 Q160 170 158 196 L150 200 Q140 172 140 146 Z",
+      "abs": "M100 120 L120 120 Q124 150 118 182 L100 184 Z",
+      "quads": "M110 192 L134 190 Q140 230 134 272 Q120 280 110 272 Q106 230 110 192 Z",
+      "adductors": "M100 192 L110 192 Q108 230 104 256 L100 256 Z"
+    },
+    back: {
+      "traps": "M100 54 L130 66 Q124 86 116 100 L100 102 Z",
+      "rear-delts": "M130 66 Q146 70 146 92 Q140 96 134 92 Q130 80 130 66 Z",
+      "side-delts": "M146 70 Q156 78 154 98 Q150 100 146 94 Q148 82 146 70 Z",
+      "upper-back": "M100 102 L116 100 Q124 110 120 126 L100 128 Z",
+      "lats": "M120 100 Q134 106 134 124 Q130 156 112 176 L106 176 L106 130 L120 126 Z",
+      "spinal-erectors": "M100 128 L106 130 L106 176 Q106 184 102 192 L100 192 Z",
+      "triceps": "M138 98 Q150 104 150 136 Q144 142 138 138 Q134 118 138 98 Z",
+      "forearms": "M144 142 Q160 170 158 196 L150 200 Q140 172 140 146 Z",
+      "glutes": "M100 190 L134 188 Q140 206 128 222 Q110 226 100 222 Z",
+      "hamstrings": "M104 226 L130 224 Q136 252 128 280 Q114 284 108 278 Q104 250 104 226 Z",
+      "calves": "M108 302 Q134 300 134 328 Q132 356 122 370 Q110 366 108 340 Z"
+    }
+  };
+  var loadState = { week: null, muscle: null };
+
+  function figure(side, counts, max, onPick) {
+    var s = svg("svg", { viewBox: "0 0 200 420", class: "figure", role: "group", "aria-label": side + " of body" });
+    var halves = [svg("g", {}), svg("g", { transform: "matrix(-1 0 0 1 200 0)" })];
+    halves.forEach(function (g) {
+      ["torso", "arm", "leg"].forEach(function (k) { g.appendChild(svg("path", { d: BODY[k], class: "sil" })); });
+      s.appendChild(g);
+    });
+    s.appendChild(svg("path", { d: BODY.head, class: "sil" }));
+    halves.forEach(function (g) {
+      Object.keys(BODY[side]).forEach(function (mu) {
+        var n = counts[mu] || 0;
+        var p = svg("path", { d: BODY[side][mu], class: "mus", "data-muscle": mu, tabindex: g === halves[0] ? "0" : "-1", role: "button",
+                              "aria-label": mu.replace(/-/g, " ") + ": " + trim(n, 1) + " hard sets", "aria-pressed": String(loadState.muscle === mu) });
+        if (n) p.style.fill = rampColor(n, max);
+        var t = svg("title"); t.textContent = mu.replace(/-/g, " ") + " · " + trim(n, 1) + " hard sets"; p.appendChild(t);
+        p.addEventListener("click", function () { onPick(mu); });
+        p.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onPick(mu); } });
+        g.appendChild(p);
+      });
+    });
+    return s;
+  }
+
+  function weekOf(dateStr) {
+    var d = day(dateStr), back = (d.getDay() + 6) % 7;
+    d.setDate(d.getDate() - back);
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function muscleSources(mu, week) {
+    // which exercises gave this muscle its hard sets in that week
+    var by = {};
+    DATA.sessions.forEach(function (s) {
+      if (weekOf(s.date) !== week) return;
+      s.sets.forEach(function (st) {
+        if (st.type === "warm-up") return;
+        var ex = EX[st.exercise_id]; if (!ex) return;
+        var credit = ex.primary_muscles.indexOf(mu) >= 0 ? 1 : ex.secondary_muscles.indexOf(mu) >= 0 ? 0.5 : 0;
+        if (!credit) return;
+        (by[ex.id] = by[ex.id] || { ex: ex, sets: 0, credit: credit, total: 0 }).sets += 1;
+        by[ex.id].total += credit;
+      });
+    });
+    return Object.keys(by).map(function (k) { return by[k]; }).sort(function (a, b) { return b.total - a.total; });
+  }
+
   function renderLoad(root) {
     root.appendChild(el("h2", { class: "viewtitle", text: "Load" }));
     var v = DATA.volume;
-    var card = el("div", { class: "card" }, [el("div", { class: "section-h", style: "margin:0 0 2px" }, [el("h2", { text: "Hard sets per muscle, by week" })]),
-      el("p", { class: "caption", text: "Weeks start Monday. Every non-warm-up set counts 1 for its primary muscles and 0.5 for its secondary; a drop or myo-rep set is one set." })]);
-    root.appendChild(card);
-    if (!v.weeks.length) card.appendChild(el("p", { class: "empty", text: "No working sets yet." }));
-    else {
+    if (!v.weeks.length) {
+      root.appendChild(el("div", { class: "card" }, [el("p", { class: "empty", text: "No working sets yet." })]));
+    } else {
+      if (loadState.week == null || loadState.week >= v.weeks.length) loadState.week = v.weeks.length - 1;
+      var wi = loadState.week, week = v.weeks[wi];
       var max = 10;
       v.muscles.forEach(function (mu) { v.table[mu].forEach(function (x) { if (x > max) max = x; }); });
+      var counts = {};
+      v.muscles.forEach(function (mu) { counts[mu] = v.table[mu][wi]; });
+      function pick(mu) { loadState.muscle = loadState.muscle === mu ? null : mu; render(); }
+
+      var mapCard = el("div", { class: "card" });
+      var nav = el("div", { class: "weeknav" }, [
+        el("button", { type: "button", class: "wk", "aria-label": "Earlier week", text: "‹", disabled: wi === 0 ? "" : null }),
+        el("span", { class: "wkl" }, [el("b", { text: wi === v.weeks.length - 1 ? "This week" : "Week of " + fmtDate(week, true) }),
+                                        el("span", { text: wi === v.weeks.length - 1 ? " · from " + fmtDate(week) : "" })]),
+        el("button", { type: "button", class: "wk", "aria-label": "Later week", text: "›", disabled: wi === v.weeks.length - 1 ? "" : null })]);
+      nav.children[0].addEventListener("click", function () { loadState.week = Math.max(0, wi - 1); render(); });
+      nav.children[2].addEventListener("click", function () { loadState.week = Math.min(v.weeks.length - 1, wi + 1); render(); });
+      mapCard.appendChild(nav);
+      var figs = el("div", { class: "figures" }, [
+        el("div", { class: "fig" }, [figure("front", counts, max, pick), el("span", { class: "figl", text: "Front" })]),
+        el("div", { class: "fig" }, [figure("back", counts, max, pick), el("span", { class: "figl", text: "Back" })])]);
+      mapCard.appendChild(figs);
+      var leg = el("div", { class: "ramp" }, [el("span", { text: "0" })]);
+      [0.1, 0.3, 0.5, 0.7, 0.9, 1].forEach(function (f) { var sw = el("span", { class: "sw" }); sw.style.background = rampColor(f * max, max); leg.appendChild(sw); });
+      leg.appendChild(el("span", { text: trim(max, 1) + "+ hard sets · tap a muscle" }));
+      mapCard.appendChild(leg);
+
+      var detail = el("div", { class: "card" });
+      var mu = loadState.muscle;
+      if (!mu) {
+        var top = v.muscles.map(function (m) { return { m: m, n: counts[m] }; }).filter(function (r) { return r.n > 0; }).sort(function (a, b) { return b.n - a.n; });
+        detail.appendChild(el("div", { class: "section-h", style: "margin:0 0 8px" }, [el("h2", { text: (wi === v.weeks.length - 1 ? "This week" : "Week of " + fmtDate(week)) + " · hard sets" })]));
+        if (!top.length) detail.appendChild(el("p", { class: "empty", text: "No hard sets logged this week." }));
+        else {
+          var wb = el("div", { class: "weekbars" });
+          top.forEach(function (r) {
+            var lbl = el("button", { type: "button", class: "l linkish", text: r.m.replace(/-/g, " ") });
+            lbl.addEventListener("click", function () { pick(r.m); });
+            wb.appendChild(lbl);
+            var b = el("div", { class: "b" }); b.style.width = (r.n / top[0].n * 100) + "%"; wb.appendChild(b);
+            wb.appendChild(el("span", { class: "v num", text: trim(r.n, 1) }));
+          });
+          detail.appendChild(wb);
+        }
+        detail.appendChild(el("p", { class: "caption", style: "margin:12px 0 0", text: "Every non-warm-up set counts 1 for its primary muscles and 0.5 for its secondary; a drop or myo-rep set is one set. Weeks start Monday." }));
+      } else {
+        var head = el("div", { class: "section-h", style: "margin:0 0 6px" }, [el("h2", { text: mu.replace(/-/g, " ") })]);
+        var clear = el("button", { type: "button", class: "linkish", text: "Clear" }); clear.addEventListener("click", function () { pick(mu); });
+        head.appendChild(clear); detail.appendChild(head);
+        detail.appendChild(el("div", { class: "bignum" }, [el("span", { class: "v num", text: trim(counts[mu] || 0, 1) }), el("span", { class: "u", text: "hard sets · " + (wi === v.weeks.length - 1 ? "this week" : "week of " + fmtDate(week)) })]));
+        var hist = v.table[mu], hmax = Math.max(1, Math.max.apply(null, hist));
+        var cols = el("div", { class: "weekcols", role: "img", "aria-label": "Hard sets per week for " + mu });
+        hist.forEach(function (n, i) {
+          var col = el("button", { type: "button", class: "wc" + (i === wi ? " cur" : ""), title: fmtDate(v.weeks[i], true) + ": " + trim(n, 1) + " sets", "aria-label": fmtDate(v.weeks[i], true) + ": " + trim(n, 1) + " sets" });
+          var bar = el("div", { class: "bar" }); bar.style.height = Math.max(2, n / hmax * 100) + "%"; col.appendChild(bar);
+          col.appendChild(el("span", { class: "n num", text: n ? trim(n, 1) : "" }));
+          col.addEventListener("click", function () { loadState.week = i; render(); });
+          cols.appendChild(col);
+        });
+        detail.appendChild(cols);
+        detail.appendChild(el("div", { class: "weekaxis" }, [el("span", { text: fmtDate(v.weeks[0]) }), el("span", { text: v.weeks.length > 1 ? fmtDate(v.weeks[v.weeks.length - 1]) : "" })]));
+        var src = muscleSources(mu, week);
+        detail.appendChild(el("div", { class: "section-h", style: "margin:14px 0 6px" }, [el("h2", { text: "From" })]));
+        if (!src.length) detail.appendChild(el("p", { class: "empty", text: "Nothing hit this muscle that week." }));
+        else detail.appendChild(el("div", { class: "hist" }, src.reduce(function (acc, r) {
+          return acc.concat([el("span", { class: "d num", text: trim(r.total, 1) }),
+                             el("span", { class: "s", style: "font-family:var(--font-body);font-size:14px" }, [
+                               el("a", { href: "#lift/" + r.ex.id, text: r.ex.name, style: "text-decoration:none" }),
+                               el("span", { style: "color:var(--text-muted)", text: " " + r.sets + (r.sets === 1 ? " set" : " sets") + (r.credit === 0.5 ? " · secondary" : "") })])]); }, [])));
+      }
+      root.appendChild(el("div", { class: "two" }, [mapCard, detail]));
+
+      var card = el("div", { class: "card", style: "margin-top:14px" }, [el("div", { class: "section-h", style: "margin:0 0 8px" }, [el("h2", { text: "Hard sets per muscle, by week" })])]);
       var grid = el("div", { class: "heat", role: "table" });
       grid.style.gridTemplateColumns = "auto repeat(" + v.weeks.length + ", 46px)";
       grid.appendChild(el("div", { class: "mh", role: "columnheader", text: "" }));
-      v.weeks.forEach(function (w) { grid.appendChild(el("div", { class: "wh", role: "columnheader", text: fmtDate(w) })); });
-      v.muscles.forEach(function (mu) {
-        grid.appendChild(el("div", { class: "mh", role: "rowheader", text: mu.replace(/-/g, " ") }));
-        v.table[mu].forEach(function (x, i) {
-          var c = el("div", { class: "cell", role: "cell", text: x ? trim(x, 1) : "", title: mu.replace(/-/g, " ") + ", week of " + fmtDate(v.weeks[i], true) + ": " + trim(x, 1) + " sets" });
+      v.weeks.forEach(function (w, i) { grid.appendChild(el("div", { class: "wh" + (i === wi ? " cur" : ""), role: "columnheader", text: fmtDate(w) })); });
+      v.muscles.forEach(function (m) {
+        var rh = el("button", { type: "button", class: "mh linkish" + (m === mu ? " cur" : ""), role: "rowheader", text: m.replace(/-/g, " "), "aria-pressed": String(m === mu) });
+        rh.addEventListener("click", function () { pick(m); });
+        grid.appendChild(rh);
+        v.table[m].forEach(function (x, i) {
+          var c = el("div", { class: "cell" + (m === mu ? " cur" : ""), role: "cell", text: x ? trim(x, 1) : "", title: m.replace(/-/g, " ") + ", week of " + fmtDate(v.weeks[i], true) + ": " + trim(x, 1) + " sets" });
           if (x) { var col = rampColor(x, max); c.style.background = col; c.style.color = inkFor(col); }
           grid.appendChild(c);
         });
       });
       card.appendChild(el("div", { class: "heatwrap" }, [grid]));
-      var leg = el("div", { class: "ramp" }, [el("span", { text: "fewer" })]);
-      [0.1, 0.3, 0.5, 0.7, 0.9, 1].forEach(function (f) { var sw = el("span", { class: "sw" }); sw.style.background = rampColor(f * max, max); leg.appendChild(sw); });
-      leg.appendChild(el("span", { text: "more (" + trim(max, 1) + "+ sets)" }));
-      card.appendChild(leg);
+      root.appendChild(card);
     }
 
     root.appendChild(el("div", { class: "section-h" }, [el("h2", { text: "Recovery and session load" })]));

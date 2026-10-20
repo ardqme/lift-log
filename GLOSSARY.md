@@ -89,7 +89,10 @@ Full reps plus RIR: how many reps the load would have allowed.
 Estimated one-rep max, calculated from a regular or failure set's full reps and reps to failure. Every qualifying set gets its own estimate and the highest wins, whether it came from a single or a set of six.
 
 **PR**:
-A best result on an exercise from regular or failure sets: highest e1RM, heaviest load for a rep count, or longest hold at a load.
+A best result on an exercise from regular or failure sets: highest e1RM, heaviest load at exactly a rep count, or longest hold at a load.
+
+**Main lift**:
+One of the four primary barbell lifts (squat, bench press, deadlift, overhead press). Everything else is an accessory.
 _Avoid_: Record (unqualified)
 
 **Best set**:

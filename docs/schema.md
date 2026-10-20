@@ -15,6 +15,7 @@ separate exercises. Gear (belt, sleeves, shoes) never makes a new exercise.
 | `id` | slug | lowercase-hyphenated, from the name; never changes once sets reference it |
 | `name` | text | full descriptive name, e.g. "Low-bar Barbell Back Squat" |
 | `aliases` | list of text | what Mark might write in his notes ("lowbar squat") |
+| `main` | true/false | one of the four primary lifts (squat, bench, deadlift, overhead press); the dashboard leads with these and files the rest under accessories |
 | `equipment` | one of | barbell, dumbbell, kettlebell, machine, cable, bodyweight, band, other |
 | `load_type` | one of | `total` (barbell incl. bar, plate-loaded total), `per-hand` (dumbbells), `bodyweight` (added + / assisting −, on top of bodyweight × share), `machine` (the weight the machine shows) |
 | `measure` | one of | `reps` or `hold` (timed) |
@@ -98,11 +99,11 @@ Sets appear in the order performed. Ids, `order`, and `logged_at` are filled in 
 dashboard shows. It's rebuilt after every write, so it's always committed alongside the three
 JSONL files. Top level: `generated` (timestamp), `lb_per_kg`, `exercises`, `volume`, `sessions`.
 
-- Each exercise: identity and muscles; `e1rm_history` (best per session, oldest first); `e1rm`
-  (the overall best); `rep_max` with runs collapsed, so `{"reps_from": 1, "reps_to": 5, "kg": 115,
-  "from": "115kg×5", ...}` is one row (`reps` repeats `reps_to`); `holds`; `best_sets`; the last
-  five `cues`; `videos` (`date`, `session_id`, `set_id`, `video_id`, `segments`, newest first);
-  `last_logged`. Exercises are ordered most recently trained first.
+- Each exercise: identity, `main`, and muscles; `e1rm_history` (best per session, oldest first);
+  `e1rm` (the overall best); `rep_max` rows `{reps, kg, e1rm_kg, date, set_id, from}`, one per
+  rep count performed; `holds`; `best_sets`; the last five `cues`; `videos` (`date`,
+  `session_id`, `set_id`, `video_id`, `segments`, newest first); `last_logged`. Exercises are
+  ordered most recently trained first.
 - `volume`: `weeks` (Monday dates, at most 26), `muscles`, and `table[muscle][week index]`.
 - Each session, newest first: the session fields (bodyweight converted to `bodyweight_kg`),
   `minutes`, `training_load`, `hard_sets`, and `sets`. Each set row carries `set_id`,
@@ -119,8 +120,9 @@ JSONL files. Top level: `generated` (timestamp), `lb_per_kg`, `exercises`, `volu
   RIR 0 equals its load. Every qualifying set gets its own estimate and the highest wins; there
   is no preference by set type or rep count, so an easy single and a hard set of six compete on
   equal terms.
-- **Rep maxes (1–10)**: heaviest load with at least that many full reps, from regular and
-  failure sets.
+- **Rep maxes**: for every rep count actually performed, the heaviest load at exactly that many
+  full reps, from regular and failure sets. A set of 3 never stands in for a 2-rep max, so the
+  list only has the numbers that were done. Each rep max carries the e1RM of the set that set it.
 - **Best sets**: for drop, myo-rep, and myo-match sets, the set with the most total load
   (load × full reps across its segments).
 - **Holds**: longest time at each load.

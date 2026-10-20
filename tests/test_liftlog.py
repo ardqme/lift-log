@@ -86,10 +86,13 @@ class LogTest(unittest.TestCase):
         db = store.load_all()
         best = calc.prs(db, SQUAT)["e1rm"]
         self.assertAlmostEqual(best["e1rm"], 100 * (1 + 10 / 30))
-        # rep maxes ignore warm-ups and drops but not the easy single or the 15-rep set
+        # rep maxes ignore warm-ups and drops but not the easy single or the 15-rep set,
+        # and they are exact: only the rep counts actually performed appear
         rm = calc.prs(db, SQUAT)["rep_max"]
+        self.assertEqual(sorted(rm), [1, 6, 15])
         self.assertEqual(rm[1]["load_kg"], 150)
-        self.assertEqual(rm[10]["load_kg"], 60)
+        self.assertIsNone(rm[1]["e1rm"])          # too easy to estimate from
+        self.assertAlmostEqual(rm[6]["e1rm"], 100 * (1 + 10 / 30))
 
     def test_partials_never_count(self):
         self.add(bundle("2026-10-18", [sset("dumbbell-curl", "failure", [seg(30, 8, "lb", partial=4)])],
@@ -137,8 +140,8 @@ class LogTest(unittest.TestCase):
         self.assertIn("baseline", first)
         self.assertNotIn("heaviest", first)
         out = self.add(bundle("2026-10-18", [sset("low-bar-back-squat", "regular", [seg(105, 5)])]))
-        self.assertIn("heaviest for 1–5 reps: 105 kg", out)
-        self.assertNotIn("6 reps", out)
+        self.assertIn("heaviest for 5 reps: 105 kg", out)
+        self.assertNotIn("4 reps", out)
 
     # --- validation and editing ---
 
@@ -215,7 +218,7 @@ class LogTest(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.run_cli("set-video", "2026-10-18-1-s01", "https://vimeo.com/1")
 
-    def test_stats_marks_prs_and_collapses_rep_max_runs(self):
+    def test_stats_marks_prs_and_lists_exact_rep_maxes(self):
         self.add(bundle("2026-10-11", [sset("low-bar-back-squat", "regular", [seg(100, 5)], rpe=8)], new=[SQUAT]))
         self.add(bundle("2026-10-18", [
             sset("low-bar-back-squat", "warm-up", [seg(60, 5)]),
@@ -231,8 +234,9 @@ class LogTest(unittest.TestCase):
         self.assertIsNone(latest[0]["pr"])
         self.assertEqual((latest[1]["load_kg"], latest[1]["reps"]), (115, 5))
         self.assertIsNone(latest[3]["load_kg"])           # two segments: text only
-        runs = [(r["reps_from"], r["reps_to"], r["kg"]) for r in s["exercises"][0]["rep_max"]]
-        self.assertEqual(runs, [(1, 5, 115), (6, 6, 100)])
+        rows = [(r["reps"], r["kg"], round(r["e1rm_kg"], 1)) for r in s["exercises"][0]["rep_max"]]
+        self.assertEqual(rows, [(5, 115, 143.8), (6, 100, 133.3)])
+        self.assertTrue(all("main" in e for e in s["exercises"]))
 
     def test_last_unit_and_alias_lookup(self):
         self.add(bundle("2026-10-18", [sset("dumbbell-curl", "regular", [seg(30, 10, "lb")])], new=[CURL, SQUAT]))

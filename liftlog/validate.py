@@ -45,6 +45,8 @@ def exercise(ex):
         errs.append(f"{where}: name is required")
     if not isinstance(ex.get("aliases", []), list):
         errs.append(f"{where}: aliases must be a list")
+    if ex.get("main") not in (None, True, False):
+        errs.append(f"{where}: main must be true or false")
     for key, allowed in (("equipment", schema.EQUIPMENT), ("load_type", schema.LOAD_TYPES),
                          ("measure", schema.MEASURES)):
         if ex.get(key) not in allowed:
