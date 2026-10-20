@@ -3,7 +3,7 @@ rules the command line uses, so the page and the skill can never disagree."""
 
 import datetime as dt
 
-from . import calc, schema
+from . import calc, schema, store, validate
 
 MAX_WEEKS = 26  # volume grid covers at most the last half year
 
@@ -17,8 +17,53 @@ def _effort(st):
     return " ".join(parts)
 
 
+def _collapse_rep_max(rep_max, ex):
+    """Runs of rep counts set by the same set become one row: 1–5 from 115kg×5, 6 from 100kg×6.
+
+    `reps` is kept as the top of the run so older readers of stats.json still work.
+    """
+    rows = []
+    for n, r in sorted(rep_max.items()):
+        if rows and rows[-1]["set_id"] == r["set_id"] and rows[-1]["reps_to"] == n - 1:
+            rows[-1]["reps_to"] = rows[-1]["reps"] = n
+            continue
+        rows.append({"reps_from": n, "reps_to": n, "reps": n, "kg": r["load_kg"], "date": r["date"],
+                     "set_id": r["set_id"], "from": calc.format_segment(r["segment"], ex)})
+    return rows
+
+
+def _pr_flags(db):
+    """{set_id: 'e1rm' | 'rep_max'} for every set that beat all earlier sessions.
+
+    The first session on an exercise is a baseline, not a PR, matching the command line.
+    """
+    flags = {}
+    rank = calc.session_rank(db)
+    for ex in db["exercises"]:
+        rows = calc.pr_candidates(db, ex)
+        for sid in sorted({r["session_id"] for r in rows}, key=rank.get):
+            if not any(rank[r["session_id"]] < rank[sid] for r in rows):
+                continue
+            old, now = calc.prs(db, ex, upto=sid, inclusive=False), calc.prs(db, ex, upto=sid)
+            if ex["measure"] == "hold":
+                for load, r in now["holds"].items():
+                    prev = old["holds"].get(load)
+                    if r["session_id"] == sid and (prev is None or r["seconds"] > prev["seconds"]):
+                        flags.setdefault(r["set_id"], "rep_max")
+                continue
+            b, ob = now["e1rm"], old["e1rm"]
+            if b and b["session_id"] == sid and (ob is None or b["e1rm"] > ob["e1rm"]):
+                flags[b["set_id"]] = "e1rm"
+            for n, r in now["rep_max"].items():
+                prev = old["rep_max"].get(n)
+                if r["session_id"] == sid and (prev is None or r["load_kg"] > prev["load_kg"] + 1e-9):
+                    flags.setdefault(r["set_id"], "rep_max")
+    return flags
+
+
 def _exercise_block(db, ex):
     p = calc.prs(db, ex)
+    sessions = {s["id"]: s for s in db["sessions"]}
     block = {
         "id": ex["id"], "name": ex["name"], "load_type": ex["load_type"], "measure": ex["measure"],
         "primary_muscles": ex["primary_muscles"], "secondary_muscles": ex.get("secondary_muscles", []),
@@ -27,6 +72,7 @@ def _exercise_block(db, ex):
                          for r in calc.e1rm_history(db, ex)],
         "e1rm": None, "rep_max": [], "holds": [], "best_sets": [],
         "cues": [{"date": d, "cue": c} for d, c in calc.cues(db, ex, last=5)],
+        "videos": [],
     }
     if ex["measure"] == "hold":
         block["holds"] = [{"kg": load, "seconds": r["seconds"], "date": r["date"]}
@@ -35,12 +81,16 @@ def _exercise_block(db, ex):
         b = p["e1rm"]
         if b:
             block["e1rm"] = {"kg": b["e1rm"], "date": b["date"], "from": calc.format_segment(b["segment"], ex)}
-        block["rep_max"] = [{"reps": n, "kg": r["load_kg"], "date": r["date"],
-                             "from": calc.format_segment(r["segment"], ex)}
-                            for n, r in sorted(p["rep_max"].items())]
+        block["rep_max"] = _collapse_rep_max(p["rep_max"], ex)
     for kind, r in calc.best_sets(db, ex).items():
         block["best_sets"].append({"type": kind, "date": r["date"], "volume_kg": r["volume_kg"],
                                    "segments": ", ".join(calc.format_segment(s, ex) for s in r["set"]["segments"])})
+    filmed = [st for st in calc.sets_for(db, ex["id"]) if st.get("video")]
+    filmed.sort(key=lambda st: (sessions[st["session_id"]]["date"], st["session_id"], st["order"]), reverse=True)
+    block["videos"] = [{"date": sessions[st["session_id"]]["date"], "session_id": st["session_id"],
+                        "set_id": st["id"], "video_id": validate.youtube_id(st["video"]),
+                        "segments": ", ".join(calc.format_segment(s, ex) for s in st["segments"])}
+                       for st in filmed]
     used = {st["session_id"] for st in db["sets"] if st["exercise_id"] == ex["id"]}
     dates = [s["date"] for s in db["sessions"] if s["id"] in used]
     block["last_logged"] = max(dates) if dates else None
@@ -61,16 +111,24 @@ def _volume(db, today):
             "table": {m: [table[w].get(m, 0) for w in week_keys] for m in muscles}}
 
 
-def _session_block(db, sess):
+def _session_block(db, sess, pr_flags):
     exercises = {ex["id"]: ex for ex in db["exercises"]}
     sets = sorted((st for st in db["sets"] if st["session_id"] == sess["id"]), key=lambda st: st["order"])
+    bw_kg = calc.bodyweight_kg(db, sess)
     rows = []
     for st in sets:
         ex = exercises[st["exercise_id"]]
-        rows.append({"exercise": ex["name"], "superset": st.get("superset"), "type": st["type"],
+        # One plain segment gets numbers the charts can plot; anything fancier keeps only the text.
+        seg = st["segments"][0] if len(st["segments"]) == 1 and ex["measure"] == "reps" else None
+        rows.append({"set_id": st["id"], "exercise_id": ex["id"], "exercise": ex["name"],
+                     "superset": st.get("superset"), "type": st["type"],
                      "segments": ", ".join(calc.format_segment(s, ex) for s in st["segments"]),
+                     "load_kg": calc.effective_kg(seg, ex, bw_kg) if seg else None,
+                     "reps": seg["full"] if seg else None,
                      "mode": st["mode"], "effort": _effort(st), "gear": st.get("gear", []),
-                     "cue": st.get("cue"), "notes": st.get("notes")})
+                     "cue": st.get("cue"), "notes": st.get("notes"),
+                     "video_id": validate.youtube_id(st["video"]) if st.get("video") else None,
+                     "pr": pr_flags.get(st["id"])})
     bw = sess.get("bodyweight")
     return {"id": sess["id"], "date": sess["date"], "start": sess.get("start"), "end": sess.get("end"),
             "location": sess.get("location"), "readiness": sess.get("readiness"),
@@ -96,10 +154,11 @@ def _exercise_order(db, blocks):
 def build(db, today=None):
     today = today or dt.date.today()
     sessions = calc.session_order(db)
+    pr_flags = _pr_flags(db)
     return {
-        "generated": dt.datetime.now().astimezone().isoformat(timespec="seconds"),
+        "generated": store.timestamp(),
         "lb_per_kg": schema.LB_PER_KG,
         "exercises": _exercise_order(db, [_exercise_block(db, ex) for ex in db["exercises"]]),
         "volume": _volume(db, today),
-        "sessions": [_session_block(db, s) for s in reversed(sessions)],
+        "sessions": [_session_block(db, s, pr_flags) for s in reversed(sessions)],
     }

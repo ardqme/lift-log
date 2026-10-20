@@ -11,6 +11,13 @@ DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 TIME = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 SUPERSET = re.compile(r"^[A-Z][1-9]$")
+YOUTUBE = re.compile(r"^https?://(?:www\.)?(?:youtu\.be/|youtube\.com/(?:watch\?v=|shorts/))([A-Za-z0-9_-]{11})(?:[?&#].*)?$")
+
+
+def youtube_id(url):
+    """The 11-character video id from a youtu.be, watch?v=, or shorts URL; None if it isn't one."""
+    m = YOUTUBE.match(url) if isinstance(url, str) else None
+    return m.group(1) if m else None
 
 
 def _num(v):
@@ -137,6 +144,8 @@ def set_(st, exercises_by_id, require_id=True):
         errs.append(f"{where}: rir must be 0 to 10 in half steps")
     if not isinstance(st.get("gear", []), list):
         errs.append(f"{where}: gear must be a list")
+    if st.get("video") is not None and youtube_id(st["video"]) is None:
+        errs.append(f"{where}: video must be a YouTube link (youtu.be/ID or youtube.com/watch?v=ID)")
     segs = st.get("segments")
     if not isinstance(segs, list) or not segs:
         errs.append(f"{where}: at least one segment is required")

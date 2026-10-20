@@ -42,7 +42,7 @@ rear-delts, lats, upper-back, traps, biceps, triceps, forearms, abs, spinal-erec
 | `session_rpe` | 1–10 or null | whole-session effort |
 | `notes` | text or null | |
 | `raw_text` | text | the notes exactly as pasted; kept for investigation, never displayed by default |
-| `logged_at` | timestamp | assigned on write |
+| `logged_at` | timestamp | assigned on write, always in `America/Los_Angeles` (`schema.TIMEZONE`) whatever machine wrote it |
 
 ## sets.jsonl
 
@@ -61,6 +61,7 @@ One line per set, however many segments it has.
 | `gear` | list of text | lowercase, e.g. ["squat shoes", "belt"] |
 | `cue` | text or null | the "Cue:" note, kept separate so it can be shown next time |
 | `notes` | text or null | everything else written about the set |
+| `video` | YouTube URL or null | the clip of this set (`youtu.be/ID`, `youtube.com/watch?v=ID`, or a Short); set with `lift.py set-video` |
 | `segments` | list | at least one; see below |
 
 A segment is one uninterrupted piece of a set:
@@ -94,16 +95,30 @@ Sets appear in the order performed. Ids, `order`, and `logged_at` are filled in 
 ## stats.json
 
 `data/stats.json` is generated, never edited by hand: `liftlog/stats.py` writes every number the
-dashboard shows (per-exercise e1RM history, rep maxes, best sets, cues; the weekly volume grid;
-each session with its sets). It's rebuilt after every write, so it's always committed alongside
-the three JSONL files.
+dashboard shows. It's rebuilt after every write, so it's always committed alongside the three
+JSONL files. Top level: `generated` (timestamp), `lb_per_kg`, `exercises`, `volume`, `sessions`.
+
+- Each exercise: identity and muscles; `e1rm_history` (best per session, oldest first); `e1rm`
+  (the overall best); `rep_max` with runs collapsed, so `{"reps_from": 1, "reps_to": 5, "kg": 115,
+  "from": "115kg×5", ...}` is one row (`reps` repeats `reps_to`); `holds`; `best_sets`; the last
+  five `cues`; `videos` (`date`, `session_id`, `set_id`, `video_id`, `segments`, newest first);
+  `last_logged`. Exercises are ordered most recently trained first.
+- `volume`: `weeks` (Monday dates, at most 26), `muscles`, and `table[muscle][week index]`.
+- Each session, newest first: the session fields (bodyweight converted to `bodyweight_kg`),
+  `minutes`, `training_load`, `hard_sets`, and `sets`. Each set row carries `set_id`,
+  `exercise_id`, `exercise` (name), `superset`, `type`, `segments` (display text), `load_kg` and
+  `reps` (filled only for a one-segment reps set, for charts), `mode`, `effort` (`@7.5`, `2 RIR`),
+  `gear`, `cue`, `notes`, `video_id`, and `pr` (`"e1rm"`, `"rep_max"`, or null: the set beat every
+  earlier session on that exercise; the first session is a baseline, never a PR).
 
 ## Computed, never stored
 
 - **e1RM**: Epley, `load × (1 + reps to failure / 30)`, where reps to failure = full reps +
   RIR (RIR as entered, else 10 − RPE, else 0; failure sets are 0). Only regular and failure
   sets, only full reps, only 1–12 full reps, only RIR ≤ 4 (RPE 6 or harder). A single at
-  RIR 0 equals its load.
+  RIR 0 equals its load. Every qualifying set gets its own estimate and the highest wins; there
+  is no preference by set type or rep count, so an easy single and a hard set of six compete on
+  equal terms.
 - **Rep maxes (1–10)**: heaviest load with at least that many full reps, from regular and
   failure sets.
 - **Best sets**: for drop, myo-rep, and myo-match sets, the set with the most total load

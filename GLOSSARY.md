@@ -86,7 +86,7 @@ Overall effort of a whole session, 1 to 10.
 Full reps plus RIR: how many reps the load would have allowed.
 
 **e1RM**:
-Estimated one-rep max, calculated from a regular or failure set's full reps and reps to failure.
+Estimated one-rep max, calculated from a regular or failure set's full reps and reps to failure. Every qualifying set gets its own estimate and the highest wins, whether it came from a single or a set of six.
 
 **PR**:
 A best result on an exercise from regular or failure sets: highest e1RM, heaviest load for a rep count, or longest hold at a load.

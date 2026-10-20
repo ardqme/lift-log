@@ -183,6 +183,57 @@ class LogTest(unittest.TestCase):
         self.assertEqual(stats["sessions"][0]["hard_sets"], 2)
         self.assertEqual(stats["volume"]["table"]["quads"][-1], 1)
 
+    # --- timestamps, videos, dashboard flags ---
+
+    def test_timestamps_are_pacific_wherever_the_code_runs(self):
+        self.add(bundle("2026-10-18", [sset("low-bar-back-squat", "regular", [seg(100, 6)], rpe=6)], new=[SQUAT]))
+        db = store.load_all()
+        self.assertRegex(db["sessions"][0]["logged_at"], r"-0[78]:00$")
+        self.assertRegex(stats_mod.build(db)["generated"], r"-0[78]:00$")
+
+    def test_video_links_are_youtube_only(self):
+        for url in ("https://youtu.be/dQw4w9WgXcQ", "https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=5",
+                    "https://youtube.com/shorts/dQw4w9WgXcQ"):
+            self.assertEqual(validate.youtube_id(url), "dQw4w9WgXcQ")
+        for bad in ("https://vimeo.com/123", "dQw4w9WgXcQ", 42, None):
+            self.assertIsNone(validate.youtube_id(bad))
+        db = {"exercises": [SQUAT], "sessions": [], "sets": []}
+        bad = bundle("2026-10-18", [sset("low-bar-back-squat", "regular", [seg(100, 6)], video="https://vimeo.com/1")])
+        self.assertIn("YouTube", " | ".join(validate.bundle(bad, db)))
+
+    def test_set_video_writes_clears_and_reaches_stats(self):
+        self.add(bundle("2026-10-18", [sset("low-bar-back-squat", "regular", [seg(100, 6)], rpe=6)], new=[SQUAT]))
+        self.assertIsNone(store.load_all()["sets"][0]["video"])  # materialized with the field present
+        self.run_cli("set-video", "2026-10-18-1-s01", "https://youtu.be/dQw4w9WgXcQ")
+        db = store.load_all()
+        self.assertEqual(db["sets"][0]["video"], "https://youtu.be/dQw4w9WgXcQ")
+        s = stats_mod.build(db)
+        self.assertEqual(s["sessions"][0]["sets"][0]["video_id"], "dQw4w9WgXcQ")
+        self.assertEqual(s["exercises"][0]["videos"][0]["set_id"], "2026-10-18-1-s01")
+        self.run_cli("set-video", "2026-10-18-1-s01", "none")
+        self.assertIsNone(store.load_all()["sets"][0]["video"])
+        with self.assertRaises(SystemExit):
+            self.run_cli("set-video", "2026-10-18-1-s01", "https://vimeo.com/1")
+
+    def test_stats_marks_prs_and_collapses_rep_max_runs(self):
+        self.add(bundle("2026-10-11", [sset("low-bar-back-squat", "regular", [seg(100, 5)], rpe=8)], new=[SQUAT]))
+        self.add(bundle("2026-10-18", [
+            sset("low-bar-back-squat", "warm-up", [seg(60, 5)]),
+            sset("low-bar-back-squat", "regular", [seg(115, 5)], rpe=7.5),
+            sset("low-bar-back-squat", "regular", [seg(100, 6)], rpe=6),
+            sset("low-bar-back-squat", "drop", [seg(90, 5), seg(70, 5)]),
+        ]))
+        s = stats_mod.build(store.load_all())
+        latest, first = s["sessions"][0]["sets"], s["sessions"][1]["sets"]
+        self.assertIsNone(first[0]["pr"])                 # baseline, not a PR
+        self.assertEqual(latest[1]["pr"], "e1rm")         # 115×5 beats the 100×5 e1RM
+        self.assertEqual(latest[2]["pr"], "rep_max")      # 100×6 is the first 6-rep max
+        self.assertIsNone(latest[0]["pr"])
+        self.assertEqual((latest[1]["load_kg"], latest[1]["reps"]), (115, 5))
+        self.assertIsNone(latest[3]["load_kg"])           # two segments: text only
+        runs = [(r["reps_from"], r["reps_to"], r["kg"]) for r in s["exercises"][0]["rep_max"]]
+        self.assertEqual(runs, [(1, 5, 115), (6, 6, 100)])
+
     def test_last_unit_and_alias_lookup(self):
         self.add(bundle("2026-10-18", [sset("dumbbell-curl", "regular", [seg(30, 10, "lb")])], new=[CURL, SQUAT]))
         db = store.load_all()

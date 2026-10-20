@@ -4,12 +4,21 @@ Each file holds one JSON object per line. Writes go to a temporary file that is
 then renamed over the original, so a crash mid-write never leaves half a file.
 """
 
+import datetime as dt
 import json
 import os
 import tempfile
 from pathlib import Path
+from zoneinfo import ZoneInfo
+
+from . import schema
 
 FILES = {"exercises": "exercises.jsonl", "sessions": "sessions.jsonl", "sets": "sets.jsonl"}
+
+
+def timestamp():
+    """Now, in the log's timezone, as '2026-10-20T08:02:22-07:00'."""
+    return dt.datetime.now(ZoneInfo(schema.TIMEZONE)).isoformat(timespec="seconds")
 
 
 def data_dir():

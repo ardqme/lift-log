@@ -24,6 +24,7 @@ Run from this folder with `python3 lift.py <command>`.
 | `bundle SESSION_ID` | print a stored session in editable form |
 | `replace SESSION_ID BUNDLE.json` | swap a stored session for a corrected one (same id) |
 | `put-exercise FILE.json` | add or update one library exercise |
+| `set-video SET_ID URL` | link a set to its YouTube clip (`none` clears it) |
 | `show SESSION_ID [--raw]` | print a session (with the original text if `--raw`) |
 | `sessions`, `exercises` | list recent sessions / the library |
 | `prs EXERCISE` | e1RM, rep maxes 1–10, best drop/myo sets |
