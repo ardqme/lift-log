@@ -290,7 +290,7 @@ ul.cues .date { color: var(--text-muted); font-size: 12px; margin-left: 6px; }
 .vid-card .c b { color: var(--text-primary); font-weight: 600; font-family: var(--font-mono); font-size: 12px; }
 .vid-card .c .when { display: block; color: var(--text-muted); }
 .vgroup + .vgroup, .morebtn + .vgroup { margin-top: 12px; }
-.vgroup-h { color: var(--text-muted); font-size: 12px; margin: 0 0 6px; }
+.vgroup-h { color: var(--text-muted); font-size: 12px; margin: 0 0 6px; text-transform: none; }
 .morebtn { margin-top: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-1); color: var(--text-secondary); padding: 5px 12px; font: inherit; font-size: 13px; cursor: pointer; }
 .morebtn:hover, .morebtn:focus-visible { border-color: var(--axis); outline: none; }
 .hist .player.span { grid-column: 1 / -1; margin: 4px 0 8px; }
@@ -1285,7 +1285,10 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     return { view: view, arg: arg, raw: h[0] };
   }
 
-  function render() {
+  function render(toTop) {
+    // toTop: a real navigation starts at the top; an in-place redraw (resize, unit toggle,
+    // muscle pick, colour-scheme change) keeps the reader where they were.
+    var y = window.scrollY;
     var root = document.getElementById("view");
     root.textContent = "";
     if (!DATA) return;
@@ -1297,7 +1300,8 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     else if (r.view === "lift") renderLift(root, r.arg);
     else if (r.view === "sessions") renderSessions(root, r.raw === "session" ? r.arg : null);
     else renderLoad(root);
-    if (r.raw !== "session") window.scrollTo(0, 0);
+    if (!toTop) window.scrollTo(0, y);
+    else if (r.raw !== "session") window.scrollTo(0, 0);
   }
 
   function renderShell() {
@@ -1317,12 +1321,21 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     });
     b.setAttribute("aria-pressed", String(b.dataset.unit === state.unit));
   });
-  var resizeTimer = null;
-  window.addEventListener("resize", function () { clearTimeout(resizeTimer); resizeTimer = setTimeout(render, 150); });
-  window.addEventListener("hashchange", render);
+  // Only a width change can alter the layout; iOS Safari also fires resize whenever its
+  // toolbar collapses or expands mid-scroll, and redrawing then would yank the page around.
+  var resizeTimer = null, lastWidth = window.innerWidth;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      if (window.innerWidth === lastWidth) return;
+      lastWidth = window.innerWidth;
+      render(false);
+    }, 150);
+  });
+  window.addEventListener("hashchange", function () { render(true); });
   if (window.matchMedia) {
     var mq = window.matchMedia("(prefers-color-scheme: dark)");
-    if (mq.addEventListener) mq.addEventListener("change", render);
+    if (mq.addEventListener) mq.addEventListener("change", function () { render(false); });
   }
 
   function loadFigure(side) {
@@ -1343,7 +1356,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
       DATA = d; EXLIST = d.exercises; EX = {};
       d.exercises.forEach(function (e) { EX[e.id] = e; });
       if (!location.hash) history.replaceState(null, "", "#overview");
-      renderShell(); render();
+      renderShell(); render(true);
     })
     .catch(function () {
       document.getElementById("summary").textContent = "Couldn't load data/stats.json. Open this page through GitHub Pages or a local web server, not as a file.";
