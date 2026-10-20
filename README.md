@@ -12,6 +12,7 @@ is public, so the log is readable by anyone with the link.
 - `GLOSSARY.md` — the vocabulary (set types, segment, e1RM, PR, and so on)
 - `docs/adr/` — the decisions most worth explaining
 - `liftlog/` — validation and calculations, Python standard library only
+- `assets/` — the front and back muscle figures the Load view recolours (Ryan Graves, CC BY 4.0; see `assets/CREDITS.md`)
 
 ## Commands
 
