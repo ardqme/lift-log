@@ -9,6 +9,7 @@ is public, so the log is readable by anyone with the link.
 
 - `data/` — `exercises.jsonl` (the library), `sessions.jsonl`, `sets.jsonl`
 - `docs/schema.md` — every field and every calculation rule
+- `docs/videos.md` — how set videos are stored and where the upload pipeline lives
 - `GLOSSARY.md` — the vocabulary (set types, segment, e1RM, PR, and so on)
 - `docs/adr/` — the decisions most worth explaining
 - `liftlog/` — validation and calculations, Python standard library only
