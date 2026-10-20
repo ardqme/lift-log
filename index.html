@@ -290,7 +290,7 @@ ul.cues .date { color: var(--text-muted); font-size: 12px; margin-left: 6px; }
 .vid-card .c b { color: var(--text-primary); font-weight: 600; font-family: var(--font-mono); font-size: 12px; }
 .vid-card .c .when { display: block; color: var(--text-muted); }
 .vgroup + .vgroup, .morebtn + .vgroup { margin-top: 12px; }
-.vgroup-h { color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 6px; }
+.vgroup-h { color: var(--text-muted); font-size: 12px; margin: 0 0 6px; }
 .morebtn { margin-top: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-1); color: var(--text-secondary); padding: 5px 12px; font: inherit; font-size: 13px; cursor: pointer; }
 .morebtn:hover, .morebtn:focus-visible { border-color: var(--axis); outline: none; }
 .hist .player.span { grid-column: 1 / -1; margin: 4px 0 8px; }
@@ -855,7 +855,6 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
           bars.appendChild(el("span", { class: "v num", text: trim(r.n, 1) }));
         });
         card.appendChild(bars);
-        card.appendChild(el("p", { class: "caption", style: "margin:10px 0 0", text: "Week of " + fmtDate(v.weeks[wi], true) + ". A set counts 1 for its primary muscles, 0.5 for secondary." }));
       }
       root.appendChild(card);
     }
@@ -914,8 +913,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
 
     if (ex.measure !== "hold") {
       var card = el("div", { class: "card", style: "margin-top:14px" }, [
-        el("div", { class: "section-h", style: "margin:0 0 6px" }, [el("h2", { text: "e1RM per session" })]),
-        el("p", { class: "caption", text: "Line: best estimated one-rep max each session (Epley on reps + RIR, regular and failure sets). Dots: every working set, sized by reps." })]);
+        el("div", { class: "section-h", style: "margin:0 0 6px" }, [el("h2", { text: "e1RM per session" })])]);
       var host = el("div"); card.appendChild(host); root.appendChild(card);
       var line = hist.map(function (r) { return { date: r.date, y: loadNum(r.kg), from: r.from }; });
       var dots = sessionSets(ex.id, true).filter(function (p) { return p.set.load_kg != null; }).map(function (p) {
@@ -943,8 +941,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
       }
       left.appendChild(hc);
     } else {
-      var rc = el("div", { class: "card" }, [el("div", { class: "section-h", style: "margin:0 0 2px" }, [el("h2", { text: "Best by reps" })]),
-        el("p", { class: "caption", text: "Heaviest load at exactly that many full reps, with the e1RM that set implies." })]);
+      var rc = el("div", { class: "card" }, [el("div", { class: "section-h", style: "margin:0 0 6px" }, [el("h2", { text: "Best by reps" })])]);
       if (!ex.rep_max.length) rc.appendChild(el("p", { class: "empty", text: "None yet." }));
       else {
         var bars = el("div", { class: "bars" }), max = Math.max.apply(null, ex.rep_max.map(function (r) { return r.kg; }));
@@ -959,7 +956,6 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
       left.appendChild(rc);
       if (ex.best_sets.length) {
         left.appendChild(el("div", { class: "card" }, [el("div", { class: "section-h", style: "margin:0 0 6px" }, [el("h2", { text: "Best drop and myo sets" })]),
-          el("p", { class: "caption", text: "Most total load moved; never a PR." }),
           el("div", { class: "hist" }, ex.best_sets.reduce(function (acc, b) {
             return acc.concat([el("span", { class: "d", text: b.type + " · " + fmtDate(b.date) }), el("span", { class: "s", text: b.segments })]); }, []))]));
       }
@@ -1173,7 +1169,6 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
       [0.1, 0.3, 0.5, 0.7, 0.9, 1].forEach(function (f) { var sw = el("span", { class: "sw" }); sw.style.background = rampColor(f * max, max); leg.appendChild(sw); });
       leg.appendChild(el("span", { text: trim(max, 1) + "+ sets · tap a muscle" }));
       mapCard.appendChild(leg);
-      mapCard.appendChild(el("p", { class: "caption", style: "margin:8px 0 0", text: "Warm-ups never count. The lower back stands in for the spinal erectors. Figures by Ryan Graves (CC BY 4.0)." }));
 
       var detail = el("div", { class: "card" });
       var mu = loadState.muscle;
@@ -1192,15 +1187,13 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
           });
           detail.appendChild(wb);
         }
-        detail.appendChild(el("p", { class: "caption", style: "margin:12px 0 0", text: "Every non-warm-up set counts 1 for its primary muscles and 0.5 for its secondary; a drop or myo-rep set is one set. Weeks start Monday." }));
       } else {
         var head = el("div", { class: "section-h", style: "margin:0 0 6px" }, [el("h2", { text: mu.replace(/-/g, " ") })]);
         var clear = el("button", { type: "button", class: "linkish", text: "Clear" }); clear.addEventListener("click", function () { pick(mu); });
         head.appendChild(clear); detail.appendChild(head);
         var weekName = wi === v.weeks.length - 1 ? "this week" : "the week of " + fmtDate(week);
         detail.appendChild(el("div", { class: "bignum" }, [el("span", { class: "v num", text: trim(counts[mu] || 0, 1) }), el("span", { class: "u", text: "sets " + weekName })]));
-        detail.appendChild(el("div", { class: "section-h", style: "margin:4px 0 6px" }, [el("h2", { text: "Sets per week" }),
-          el("span", { class: "caption", style: "margin:0", text: v.weeks.length === 1 ? "one week logged" : v.weeks.length + " weeks · tap a bar to show that week on the map" })]));
+        detail.appendChild(el("div", { class: "section-h", style: "margin:4px 0 6px" }, [el("h2", { text: "Sets per week" })]));
         // A muscle nothing has hit yet has no row in the table; show it as all zeros.
         var hist = v.table[mu] || v.weeks.map(function () { return 0; }), hmax = Math.max(1, Math.max.apply(null, hist));
         var every = v.weeks.length <= 6 ? 1 : Math.ceil(v.weeks.length / 6);
@@ -1311,9 +1304,9 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     var s = DATA.sessions[0];
     var line = s ? DATA.sessions.length + " session" + (DATA.sessions.length === 1 ? "" : "s") + " · last " + fmtLong(s.date) + (s.location ? " at " + s.location : "") : "No sessions logged yet.";
     document.getElementById("summary").textContent = line;
-    var refreshed = "Data refreshed " + new Date(DATA.generated).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + ".";
-    document.getElementById("railfoot").textContent = line + " " + refreshed + " Body figures by Ryan Graves (CC BY 4.0).";
-    document.getElementById("pagefoot").textContent = refreshed + " Loads follow the unit toggle; bodyweight and multi-part sets show as entered. Body figures by Ryan Graves (CC BY 4.0).";
+    // The figure credit is the CC BY licence's one requirement, so it stays, in the footer only.
+    document.getElementById("railfoot").textContent = "Body figures: Ryan Graves, CC BY 4.0.";
+    document.getElementById("pagefoot").textContent = "Body figures: Ryan Graves, CC BY 4.0.";
   }
 
   document.querySelectorAll(".seg button").forEach(function (b) {
