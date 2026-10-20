@@ -31,7 +31,7 @@ Run from this folder with `python3 lift.py <command>`.
 | `sessions`, `exercises` | list recent sessions / the library |
 | `prs EXERCISE` | e1RM, rep maxes (each with its e1RM), best drop/myo sets |
 | `e1rm EXERCISE` | e1RM per session |
-| `volume [--weeks N]` | hard sets per muscle per week |
+| `volume [--weeks N]` | sets per muscle per week, warm-ups excluded |
 | `cues EXERCISE` | the latest cues for an exercise |
 | `load` | session RPE × minutes per session |
 | `validate` | check every record |

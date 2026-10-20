@@ -773,7 +773,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     var bits = [];
     if (s.start && s.end) bits.push(s.start + "–" + s.end);
     if (s.location) bits.push(s.location);
-    bits.push(s.hard_sets + " hard sets");
+    bits.push(s.set_count + " sets");
     if (s.session_rpe != null) bits.push("sRPE " + trim(s.session_rpe, 1));
     det.appendChild(el("summary", null, [
       el("span", { class: "d", text: fmtLong(s.date) }),
@@ -844,7 +844,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
       var wi = v.weeks.length - 1;
       var rows = v.muscles.map(function (m) { return { m: m, n: v.table[m][wi] }; }).filter(function (r) { return r.n > 0; })
         .sort(function (a, b) { return b.n - a.n; }).slice(0, 8);
-      root.appendChild(el("div", { class: "section-h" }, [el("h2", { text: "This week · hard sets" }), el("a", { href: "#load", text: "All weeks" })]));
+      root.appendChild(el("div", { class: "section-h" }, [el("h2", { text: "This week · sets per muscle" }), el("a", { href: "#load", text: "All weeks" })]));
       var card = el("div", { class: "card" });
       if (!rows.length) card.appendChild(el("p", { class: "empty", text: "Nothing yet this week (weeks start Monday)." }));
       else {
@@ -986,7 +986,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
         return el("div", { class: "vgroup" }, [el("div", { class: "vgroup-h", text: label }), el("div", { class: "vids" }, items.map(vidCard))]);
       }
       var top = ex.e1rm && ex.e1rm.set_id ? ex.videos.filter(function (v) { return v.set_id === ex.e1rm.set_id; })[0] : null;
-      if (top) vc.appendChild(vidGroup("Behind the e1RM · " + fmtDate(top.date, true), [top]));
+      if (top) vc.appendChild(vidGroup("Best lift for e1RM · " + fmtDate(top.date, true), [top]));
       var latestId = ex.videos[0].session_id;
       var latest = ex.videos.filter(function (v) { return v.session_id === latestId; })
                             .sort(function (a, b) { return a.set_id.localeCompare(b.set_id); });
@@ -1053,7 +1053,8 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
   // ---------- body map ----------
   // assets/body-front.svg and body-back.svg are Ryan Graves's anatomy figures (CC BY 4.0; see
   // assets/CREDITS.md). Every muscle is one <path id="…_l|_r">; MUSCLE_IDS groups those ids
-  // into the log's muscle list. Spinal erectors lie under the lats and are not drawn.
+  // into the log's muscle list. The figures don't draw the spinal erectors, so the back figure
+  // carries an added lower-back region (id erector_spinae) between the lats and the glutes.
   var MUSCLE_IDS = {
     front: {
       "chest": ["pectoralis_major"],
@@ -1079,6 +1080,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
       "triceps": ["triceps_brachii_caput_laterale", "triceps_brachii_caput_longum", "triceps_brachii_caput_mediale", "anconeus"],
       "forearms": ["brachioradialis", "extensor_carpi_ulnaris", "extensor_digitorum", "flexor_carpi_ulnaris"],
       "abs": ["external_oblique_1"],
+      "spinal-erectors": ["erector_spinae"],
       "glutes": ["gluteus_maximus", "gluteus_medius_1", "gluteus_medius_2"],
       "hamstrings": ["biceps_femoris", "semimembranosus_1", "semimembranosus_2", "semitendinosus"],
       "adductors": ["adductor_magnus"],
@@ -1105,9 +1107,9 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
           p.setAttribute("class", "mus");
           p.setAttribute("data-muscle", mu);
           p.setAttribute("aria-pressed", String(loadState.muscle === mu));
-          if (first) { p.setAttribute("tabindex", "0"); p.setAttribute("role", "button"); p.setAttribute("aria-label", mu.replace(/-/g, " ") + ": " + trim(n, 1) + " hard sets"); first = false; }
+          if (first) { p.setAttribute("tabindex", "0"); p.setAttribute("role", "button"); p.setAttribute("aria-label", mu.replace(/-/g, " ") + ": " + trim(n, 1) + " sets"); first = false; }
           if (n) p.style.fill = rampColor(n, max);
-          var t = svg("title"); t.textContent = mu.replace(/-/g, " ") + " · " + trim(n, 1) + " hard sets"; p.appendChild(t);
+          var t = svg("title"); t.textContent = mu.replace(/-/g, " ") + " · " + trim(n, 1) + " sets"; p.appendChild(t);
           p.addEventListener("click", function () { onPick(mu); });
           p.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onPick(mu); } });
           p.addEventListener("pointerenter", function () { s.querySelectorAll('[data-muscle="' + mu + '"]').forEach(function (o) { o.classList.add("hov"); }); });
@@ -1124,7 +1126,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
   }
   function muscleSources(mu, week) {
-    // which exercises gave this muscle its hard sets in that week
+    // which exercises gave this muscle its sets in that week (warm-ups never count)
     var by = {};
     DATA.sessions.forEach(function (s) {
       if (weekOf(s.date) !== week) return;
@@ -1144,7 +1146,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     root.appendChild(el("h2", { class: "viewtitle", text: "Load" }));
     var v = DATA.volume;
     if (!v.weeks.length) {
-      root.appendChild(el("div", { class: "card" }, [el("p", { class: "empty", text: "No working sets yet." })]));
+      root.appendChild(el("div", { class: "card" }, [el("p", { class: "empty", text: "No sets logged yet." })]));
     } else {
       if (loadState.week == null || loadState.week >= v.weeks.length) loadState.week = v.weeks.length - 1;
       var wi = loadState.week, week = v.weeks[wi];
@@ -1169,16 +1171,16 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
       mapCard.appendChild(figs);
       var leg = el("div", { class: "ramp" }, [el("span", { text: "0" })]);
       [0.1, 0.3, 0.5, 0.7, 0.9, 1].forEach(function (f) { var sw = el("span", { class: "sw" }); sw.style.background = rampColor(f * max, max); leg.appendChild(sw); });
-      leg.appendChild(el("span", { text: trim(max, 1) + "+ hard sets · tap a muscle" }));
+      leg.appendChild(el("span", { text: trim(max, 1) + "+ sets · tap a muscle" }));
       mapCard.appendChild(leg);
-      mapCard.appendChild(el("p", { class: "caption", style: "margin:8px 0 0", text: "Spinal erectors lie under the lats and aren't drawn; pick them from the table below. Figures by Ryan Graves (CC BY 4.0)." }));
+      mapCard.appendChild(el("p", { class: "caption", style: "margin:8px 0 0", text: "Warm-ups never count. The lower back stands in for the spinal erectors. Figures by Ryan Graves (CC BY 4.0)." }));
 
       var detail = el("div", { class: "card" });
       var mu = loadState.muscle;
       if (!mu) {
         var top = v.muscles.map(function (m) { return { m: m, n: counts[m] }; }).filter(function (r) { return r.n > 0; }).sort(function (a, b) { return b.n - a.n; });
-        detail.appendChild(el("div", { class: "section-h", style: "margin:0 0 8px" }, [el("h2", { text: (wi === v.weeks.length - 1 ? "This week" : "Week of " + fmtDate(week)) + " · hard sets" })]));
-        if (!top.length) detail.appendChild(el("p", { class: "empty", text: "No hard sets logged this week." }));
+        detail.appendChild(el("div", { class: "section-h", style: "margin:0 0 8px" }, [el("h2", { text: (wi === v.weeks.length - 1 ? "This week" : "Week of " + fmtDate(week)) + " · sets per muscle" })]));
+        if (!top.length) detail.appendChild(el("p", { class: "empty", text: "No sets logged this week." }));
         else {
           var wb = el("div", { class: "weekbars" });
           top.forEach(function (r) {
@@ -1196,14 +1198,15 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
         var clear = el("button", { type: "button", class: "linkish", text: "Clear" }); clear.addEventListener("click", function () { pick(mu); });
         head.appendChild(clear); detail.appendChild(head);
         var weekName = wi === v.weeks.length - 1 ? "this week" : "the week of " + fmtDate(week);
-        detail.appendChild(el("div", { class: "bignum" }, [el("span", { class: "v num", text: trim(counts[mu] || 0, 1) }), el("span", { class: "u", text: "hard sets " + weekName })]));
-        detail.appendChild(el("div", { class: "section-h", style: "margin:4px 0 6px" }, [el("h2", { text: "Hard sets per week" }),
+        detail.appendChild(el("div", { class: "bignum" }, [el("span", { class: "v num", text: trim(counts[mu] || 0, 1) }), el("span", { class: "u", text: "sets " + weekName })]));
+        detail.appendChild(el("div", { class: "section-h", style: "margin:4px 0 6px" }, [el("h2", { text: "Sets per week" }),
           el("span", { class: "caption", style: "margin:0", text: v.weeks.length === 1 ? "one week logged" : v.weeks.length + " weeks · tap a bar to show that week on the map" })]));
-        var hist = v.table[mu], hmax = Math.max(1, Math.max.apply(null, hist));
+        // A muscle nothing has hit yet has no row in the table; show it as all zeros.
+        var hist = v.table[mu] || v.weeks.map(function () { return 0; }), hmax = Math.max(1, Math.max.apply(null, hist));
         var every = v.weeks.length <= 6 ? 1 : Math.ceil(v.weeks.length / 6);
-        var cols = el("div", { class: "weekcols", role: "img", "aria-label": "Hard sets per week for " + mu });
+        var cols = el("div", { class: "weekcols", role: "img", "aria-label": "Sets per week for " + mu });
         hist.forEach(function (n, i) {
-          var col = el("button", { type: "button", class: "wc" + (i === wi ? " cur" : ""), title: "Week of " + fmtDate(v.weeks[i], true) + ": " + trim(n, 1) + " hard sets", "aria-label": "Week of " + fmtDate(v.weeks[i], true) + ": " + trim(n, 1) + " hard sets" });
+          var col = el("button", { type: "button", class: "wc" + (i === wi ? " cur" : ""), title: "Week of " + fmtDate(v.weeks[i], true) + ": " + trim(n, 1) + " sets", "aria-label": "Week of " + fmtDate(v.weeks[i], true) + ": " + trim(n, 1) + " sets" });
           col.appendChild(el("span", { class: "n num", text: n ? trim(n, 1) : "0" }));
           var bar = el("div", { class: "bar" }); bar.style.height = Math.max(2, n / hmax * 100) + "%"; col.appendChild(bar);
           var showLabel = i === wi || i === 0 || i === v.weeks.length - 1 || i % every === 0;
@@ -1223,7 +1226,7 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
       }
       root.appendChild(el("div", { class: "two" }, [mapCard, detail]));
 
-      var card = el("div", { class: "card", style: "margin-top:14px" }, [el("div", { class: "section-h", style: "margin:0 0 8px" }, [el("h2", { text: "Hard sets per muscle, by week" })])]);
+      var card = el("div", { class: "card", style: "margin-top:14px" }, [el("div", { class: "section-h", style: "margin:0 0 8px" }, [el("h2", { text: "Sets per muscle, by week" })])]);
       var grid = el("div", { class: "heat", role: "table" });
       grid.style.gridTemplateColumns = "auto repeat(" + v.weeks.length + ", 46px)";
       grid.appendChild(el("div", { class: "mh", role: "columnheader", text: "" }));
@@ -1330,7 +1333,8 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
   }
 
   function loadFigure(side) {
-    return fetch("assets/body-" + side + ".svg").then(function (r) { return r.ok ? r.text() : null; })
+    // The query is a cache-buster: bump it whenever a figure file changes, or browsers keep the old one.
+    return fetch("assets/body-" + side + ".svg?v=2").then(function (r) { return r.ok ? r.text() : null; })
       .then(function (text) {
         if (!text) return;
         var doc = new DOMParser().parseFromString(text, "image/svg+xml");

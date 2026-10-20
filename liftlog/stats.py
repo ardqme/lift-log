@@ -152,7 +152,7 @@ def _session_block(db, sess, pr_flags):
             "bodyweight_kg": calc.to_kg(bw["value"], bw["unit"]) if bw else None,
             "session_rpe": sess.get("session_rpe"), "minutes": calc.minutes(sess),
             "training_load": calc.training_load(sess), "notes": sess.get("notes"),
-            "hard_sets": sum(1 for st in sets if st["type"] != "warm-up"), "sets": rows}
+            "set_count": sum(1 for st in sets if st["type"] != "warm-up"), "sets": rows}
 
 
 def _exercise_order(db, blocks):

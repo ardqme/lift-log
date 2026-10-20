@@ -183,7 +183,7 @@ class LogTest(unittest.TestCase):
         self.assertEqual(squat["id"], "low-bar-back-squat")  # first exercise performed comes first
         self.assertAlmostEqual(squat["e1rm"]["kg"], 100 * (1 + 10 / 30))
         self.assertEqual(squat["cues"][0]["cue"], "Brace.")
-        self.assertEqual(stats["sessions"][0]["hard_sets"], 2)
+        self.assertEqual(stats["sessions"][0]["set_count"], 2)
         self.assertEqual(stats["volume"]["table"]["quads"][-1], 1)
 
     # --- timestamps, videos, dashboard flags ---
