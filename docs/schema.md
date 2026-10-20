@@ -100,10 +100,14 @@ dashboard shows. It's rebuilt after every write, so it's always committed alongs
 JSONL files. Top level: `generated` (timestamp), `lb_per_kg`, `exercises`, `volume`, `sessions`.
 
 - Each exercise: identity, `main`, and muscles; `e1rm_history` (best per session, oldest first);
-  `e1rm` (the overall best); `rep_max` rows `{reps, kg, e1rm_kg, date, set_id, from}`, one per
-  rep count performed; `holds`; `best_sets`; the last five `cues`; `videos` (`date`,
-  `session_id`, `set_id`, `video_id`, `segments`, newest first); `last_logged`. Exercises are
-  ordered most recently trained first.
+  `e1rm` (the overall best, with the `set_id` that set it); `rep_max` rows
+  `{reps, kg, e1rm_kg, date, set_id, from}`, one per rep count performed; `holds`;
+  `best_sets`; the last five `cues`; `videos` (`date`, `session_id`, `set_id`, `video_id`,
+  `segments`, `role`, newest first); `last_logged`. Exercises are ordered most recently
+  trained first. A video's `role` names the set within its session: `warm-up`, `top set`
+  (the single heaviest working set), `backoff set i/n`, or `set i/n` when no one set is
+  heaviest. The dashboard's lift page shows the video behind the current e1RM, then the
+  latest filmed session, and the rest behind "More".
 - `volume`: `weeks` (Monday dates, at most 26), `muscles`, and `table[muscle][week index]`.
 - Each session, newest first: the session fields (bodyweight converted to `bodyweight_kg`),
   `minutes`, `training_load`, `hard_sets`, and `sets`. Each set row carries `set_id`,

@@ -204,6 +204,20 @@ class LogTest(unittest.TestCase):
         bad = bundle("2026-10-18", [sset("low-bar-back-squat", "regular", [seg(100, 6)], video="https://vimeo.com/1")])
         self.assertIn("YouTube", " | ".join(validate.bundle(bad, db)))
 
+    def test_video_cards_say_which_set(self):
+        v = "https://youtu.be/dQw4w9WgXcQ"
+        self.add(bundle("2026-10-18", [sset("low-bar-back-squat", "warm-up", [seg(60, 5)], video=v),
+                                       sset("low-bar-back-squat", "regular", [seg(115, 5)], rpe=7.5, video=v),
+                                       sset("low-bar-back-squat", "regular", [seg(100, 6)], rpe=6, video=v),
+                                       sset("low-bar-back-squat", "regular", [seg(100, 6)], rpe=6, video=v)], new=[SQUAT]))
+        squat = stats_mod.build(store.load_all())["exercises"][0]
+        self.assertEqual(squat["e1rm"]["set_id"], "2026-10-18-1-s02")
+        self.assertEqual([x["role"] for x in squat["videos"]],  # newest first = reverse order
+                         ["backoff set 2/2", "backoff set 1/2", "top set", "warm-up"])
+        self.assertEqual(stats_mod._set_roles([{"id": "a", "type": "regular", "segments": [seg(100, 6)]},
+                                               {"id": "b", "type": "regular", "segments": [seg(100, 6)]}]),
+                         {"a": "set 1/2", "b": "set 2/2"})
+
     def test_set_video_writes_clears_and_reaches_stats(self):
         self.add(bundle("2026-10-18", [sset("low-bar-back-squat", "regular", [seg(100, 6)], rpe=6)], new=[SQUAT]))
         self.assertIsNone(store.load_all()["sets"][0]["video"])  # materialized with the field present

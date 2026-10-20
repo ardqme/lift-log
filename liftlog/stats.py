@@ -46,6 +46,29 @@ def _pr_flags(db):
     return flags
 
 
+def _set_roles(sets):
+    """Name each of one exercise's sets in one session, in the order performed: `warm-up`,
+    `top set` (the single heaviest working set), `backoff set i/n` for the lighter ones, or
+    `set i/n` when no one set is heaviest. A set's load is its heaviest segment, in kg."""
+    def kg(st):
+        return max(calc.to_kg(s["load"], s["unit"]) for s in st["segments"])
+    roles = {st["id"]: "warm-up" for st in sets if st["type"] == "warm-up"}
+    working = [st for st in sets if st["type"] != "warm-up"]
+    if not working:
+        return roles
+    top_kg = max(kg(st) for st in working)
+    tops = [st for st in working if kg(st) == top_kg]
+    if len(tops) == 1:
+        roles[tops[0]["id"]] = "top set"
+        backs = [st for st in working if st is not tops[0]]
+        for i, st in enumerate(backs, 1):
+            roles[st["id"]] = f"backoff set {i}/{len(backs)}"
+    else:
+        for i, st in enumerate(working, 1):
+            roles[st["id"]] = f"set {i}/{len(working)}"
+    return roles
+
+
 def _exercise_block(db, ex):
     p = calc.prs(db, ex)
     sessions = {s["id"]: s for s in db["sessions"]}
@@ -66,17 +89,22 @@ def _exercise_block(db, ex):
     else:
         b = p["e1rm"]
         if b:
-            block["e1rm"] = {"kg": b["e1rm"], "date": b["date"], "from": calc.format_segment(b["segment"], ex)}
+            block["e1rm"] = {"kg": b["e1rm"], "date": b["date"], "set_id": b["set_id"],
+                             "from": calc.format_segment(b["segment"], ex)}
         block["rep_max"] = [{"reps": n, "kg": r["load_kg"], "e1rm_kg": r["e1rm"], "date": r["date"],
                              "set_id": r["set_id"], "from": calc.format_segment(r["segment"], ex)}
                             for n, r in sorted(p["rep_max"].items())]
     for kind, r in calc.best_sets(db, ex).items():
         block["best_sets"].append({"type": kind, "date": r["date"], "volume_kg": r["volume_kg"],
                                    "segments": ", ".join(calc.format_segment(s, ex) for s in r["set"]["segments"])})
-    filmed = [st for st in calc.sets_for(db, ex["id"]) if st.get("video")]
+    mine = calc.sets_for(db, ex["id"])
+    roles = {}
+    for sid in {st["session_id"] for st in mine}:
+        roles.update(_set_roles(sorted((st for st in mine if st["session_id"] == sid), key=lambda st: st["order"])))
+    filmed = [st for st in mine if st.get("video")]
     filmed.sort(key=lambda st: (sessions[st["session_id"]]["date"], st["session_id"], st["order"]), reverse=True)
     block["videos"] = [{"date": sessions[st["session_id"]]["date"], "session_id": st["session_id"],
-                        "set_id": st["id"], "video_id": validate.youtube_id(st["video"]),
+                        "set_id": st["id"], "video_id": validate.youtube_id(st["video"]), "role": roles[st["id"]],
                         "segments": ", ".join(calc.format_segment(s, ex) for s in st["segments"])}
                        for st in filmed]
     used = {st["session_id"] for st in db["sets"] if st["exercise_id"] == ex["id"]}
