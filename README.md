@@ -12,6 +12,7 @@ is public, so the log is readable by anyone with the link.
 - `GLOSSARY.md` — the vocabulary (set types, segment, e1RM, PR, and so on)
 - `docs/adr/` — the decisions most worth explaining
 - `liftlog/` — validation and calculations, Python standard library only
+- `assets/` — the front and back muscle figures the Load view recolours (Ryan Graves, CC BY 4.0; see `assets/CREDITS.md`)
 
 ## Commands
 
@@ -27,7 +28,7 @@ Run from this folder with `python3 lift.py <command>`.
 | `set-video SET_ID URL` | link a set to its YouTube clip (`none` clears it) |
 | `show SESSION_ID [--raw]` | print a session (with the original text if `--raw`) |
 | `sessions`, `exercises` | list recent sessions / the library |
-| `prs EXERCISE` | e1RM, rep maxes 1–10, best drop/myo sets |
+| `prs EXERCISE` | e1RM, rep maxes (each with its e1RM), best drop/myo sets |
 | `e1rm EXERCISE` | e1RM per session |
 | `volume [--weeks N]` | hard sets per muscle per week |
 | `cues EXERCISE` | the latest cues for an exercise |

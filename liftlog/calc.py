@@ -164,11 +164,15 @@ def prs(db, ex, upto=None, inclusive=True):
         return {"holds": by_load}
     e1 = [r for r in rows if r["e1rm"] is not None]
     best = max(e1, key=lambda r: r["e1rm"]) if e1 else None
+    # Rep maxes are exact: the heaviest load at precisely n full reps, for every n performed.
+    # A set of 3 never stands in for a 2-rep max; each row carries its own e1RM when it qualifies.
     rep_max = {}
-    for n in schema.REP_MAX_RANGE:
-        eligible = [r for r in rows if r["load_kg"] is not None and r["full"] >= n]
-        if eligible:
-            rep_max[n] = max(eligible, key=lambda r: r["load_kg"])
+    for r in rows:
+        n = r["full"]
+        if r["load_kg"] is None or n < 1:
+            continue
+        if n not in rep_max or r["load_kg"] > rep_max[n]["load_kg"]:
+            rep_max[n] = r
     return {"e1rm": best, "rep_max": rep_max}
 
 
@@ -203,34 +207,11 @@ def session_prs(db, session_id):
         b, ob = now["e1rm"], old["e1rm"]
         if b and b["session_id"] == session_id and (ob is None or b["e1rm"] > ob["e1rm"]):
             found.append((ex, f"e1RM {show(b['e1rm'])}"))
-        new_maxes = []
-        for n, r in now["rep_max"].items():
+        for n, r in sorted(now["rep_max"].items()):
             prev = old["rep_max"].get(n)
             if r["session_id"] == session_id and (prev is None or r["load_kg"] > prev["load_kg"] + 1e-9):
-                new_maxes.append((n, r["load_kg"]))
-        found += [(ex, text) for text in _collapse_rep_maxes(new_maxes)]
+                found.append((ex, f"heaviest for {n} rep{'s' if n > 1 else ''}: {show(r['load_kg'])}"))
     return found
-
-
-def _collapse_rep_maxes(pairs):
-    """[(2, 100), (3, 100), (4, 100)] -> ['heaviest for 2–4 reps: 100 kg / 220.5 lb']"""
-    out, run = [], []
-    for n, load in pairs:
-        if run and n == run[-1][0] + 1 and abs(load - run[-1][1]) < 1e-9:
-            run.append((n, load))
-            continue
-        if run:
-            out.append(_rep_run(run))
-        run = [(n, load)]
-    if run:
-        out.append(_rep_run(run))
-    return out
-
-
-def _rep_run(run):
-    lo, hi = run[0][0], run[-1][0]
-    reps = f"{lo} rep{'s' if lo > 1 else ''}" if lo == hi else f"{lo}–{hi} reps"
-    return f"heaviest for {reps}: {show(run[0][1])}"
 
 
 def e1rm_history(db, ex):
