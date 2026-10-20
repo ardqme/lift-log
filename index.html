@@ -288,6 +288,12 @@ ul.cues .date { color: var(--text-muted); font-size: 12px; margin-left: 6px; }
 .vid-card .th::after { content: "▶"; position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-size: 22px; text-shadow: 0 1px 6px rgba(0,0,0,0.6); }
 .vid-card .c { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
 .vid-card .c b { color: var(--text-primary); font-weight: 600; font-family: var(--font-mono); font-size: 12px; }
+.vid-card .c .when { display: block; color: var(--text-muted); }
+.vgroup + .vgroup, .morebtn + .vgroup { margin-top: 12px; }
+.vgroup-h { color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 6px; }
+.morebtn { margin-top: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-1); color: var(--text-secondary); padding: 5px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.morebtn:hover, .morebtn:focus-visible { border-color: var(--axis); outline: none; }
+.hist .player.span { grid-column: 1 / -1; margin: 4px 0 8px; }
 .hist { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; align-items: baseline; }
 .hist .d { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
 .hist .d a { text-decoration: none; }
@@ -715,14 +721,19 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
     if (st.video_id && !opts.hideVideo) {
       var b = el("button", { type: "button", class: "vid", "aria-expanded": "false", title: "Play video", text: "▶" });
       b.addEventListener("click", function () {
+        // The chip sits in a session block (journal) or a history row (lift page); the
+        // player goes under whichever it is, and only one plays per container.
         var open = b.getAttribute("aria-expanded") === "true";
-        var block = chip.closest(".block");
-        var old = block.querySelector(".player");
+        var host = chip.closest(".block, .hist");
+        var old = host.querySelector(".player");
         if (old) old.remove();
-        block.querySelectorAll(".vid").forEach(function (o) { o.setAttribute("aria-expanded", "false"); });
+        host.querySelectorAll(".vid").forEach(function (o) { o.setAttribute("aria-expanded", "false"); });
         if (!open) {
           b.setAttribute("aria-expanded", "true");
-          block.appendChild(player(st.video_id, st.exercise + " " + st.segments + (st.effort ? " " + st.effort : "") + " · " + fmtDate(s.date, true)));
+          var p = player(st.video_id, st.exercise + " " + st.segments + (st.effort ? " " + st.effort : "") + " · " + fmtDate(s.date, true));
+          var row = chip.closest(".hist .s");
+          if (row) { p.classList.add("span"); row.insertAdjacentElement("afterend", p); }
+          else host.appendChild(p);
         }
       });
       chip.appendChild(b);
@@ -957,19 +968,42 @@ details.plain > summary { cursor: pointer; color: var(--text-secondary); font-si
       ex.cues.length ? el("ul", { class: "cues" }, ex.cues.map(function (c) { return el("li", null, [c.cue, el("span", { class: "date", text: fmtDate(c.date) })]); }))
                      : el("p", { class: "empty", text: "No cues recorded." })]));
     if (ex.videos.length) {
-      var vc = el("div", { class: "card" }, [el("div", { class: "section-h", style: "margin:0 0 8px" }, [el("h2", { text: "Videos" })])]);
-      var grid = el("div", { class: "vids" });
-      ex.videos.forEach(function (v) {
+      // Two groups up front — the set behind the current e1RM, then the latest filmed
+      // session (which may repeat it) — and the rest behind "More", so the card stays small.
+      var vhead = el("div", { class: "section-h", style: "margin:0 0 8px" }, [el("h2", { text: "Videos" })]);
+      var vc = el("div", { class: "card" }, [vhead]);
+      function vidCard(v) {
         var b = el("button", { type: "button", class: "vid-card" }, [
           el("div", { class: "th" }, [el("img", { src: "https://i.ytimg.com/vi/" + v.video_id + "/mqdefault.jpg", alt: "", loading: "lazy" })]),
-          el("div", { class: "c" }, [el("b", { text: v.segments }), " · " + fmtDate(v.date, true)])]);
+          el("div", { class: "c" }, [el("b", { text: v.segments }), " · " + v.role, el("span", { class: "when", text: fmtDate(v.date, true) })])]);
         b.addEventListener("click", function () {
           var old = vc.querySelector(".player"); if (old) old.remove();
-          vc.appendChild(player(v.video_id, ex.name + " " + v.segments + " · " + fmtDate(v.date, true)));
+          vhead.insertAdjacentElement("afterend", player(v.video_id, ex.name + " " + v.segments + " · " + v.role + " · " + fmtDate(v.date, true)));
         });
-        grid.appendChild(b);
-      });
-      vc.appendChild(grid); right.appendChild(vc);
+        return b;
+      }
+      function vidGroup(label, items) {
+        return el("div", { class: "vgroup" }, [el("div", { class: "vgroup-h", text: label }), el("div", { class: "vids" }, items.map(vidCard))]);
+      }
+      var top = ex.e1rm && ex.e1rm.set_id ? ex.videos.filter(function (v) { return v.set_id === ex.e1rm.set_id; })[0] : null;
+      if (top) vc.appendChild(vidGroup("Behind the e1RM · " + fmtDate(top.date, true), [top]));
+      var latestId = ex.videos[0].session_id;
+      var latest = ex.videos.filter(function (v) { return v.session_id === latestId; })
+                            .sort(function (a, b) { return a.set_id.localeCompare(b.set_id); });
+      vc.appendChild(vidGroup("Latest session · " + fmtDate(latest[0].date, true), latest));
+      var rest = ex.videos.filter(function (v) { return v !== top && v.session_id !== latestId; });
+      if (rest.length) {
+        var more = el("div", { class: "vgroup" }, [el("div", { class: "vgroup-h", text: "Earlier" }), el("div", { class: "vids" }, rest.map(vidCard))]);
+        more.hidden = true;
+        var btn = el("button", { type: "button", class: "morebtn", "aria-expanded": "false", text: "More (" + rest.length + ")" });
+        btn.addEventListener("click", function () {
+          more.hidden = !more.hidden;
+          btn.setAttribute("aria-expanded", more.hidden ? "false" : "true");
+          btn.textContent = more.hidden ? "More (" + rest.length + ")" : "Fewer";
+        });
+        vc.appendChild(btn); vc.appendChild(more);
+      }
+      right.appendChild(vc);
     }
     two.appendChild(left); two.appendChild(right); root.appendChild(two);
 
