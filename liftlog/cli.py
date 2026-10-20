@@ -1,7 +1,6 @@
 """Command line for the lifting log. Run `python3 lift.py --help` from the repo root."""
 
 import argparse
-import datetime as dt
 import json
 import sys
 
@@ -30,8 +29,7 @@ def _new_session_id(db, date):
 
 def _materialize(bundle, session_id):
     """Turn a bundle into finished session and set rows with ids and order."""
-    sess = dict(bundle["session"], id=session_id,
-                logged_at=dt.datetime.now().astimezone().isoformat(timespec="seconds"))
+    sess = dict(bundle["session"], id=session_id, logged_at=store.timestamp())
     sets = []
     for i, st in enumerate(bundle["sets"], 1):
         row = {"id": f"{session_id}-s{i:02d}", "session_id": session_id, "order": i}
@@ -42,6 +40,7 @@ def _materialize(bundle, session_id):
         row.setdefault("gear", [])
         row.setdefault("cue", None)
         row.setdefault("notes", None)
+        row.setdefault("video", None)
         for seg in row["segments"]:
             if "full" in seg:
                 seg.setdefault("partial", 0)
@@ -98,6 +97,8 @@ def _preview_lines(db, bundle):
             lines.append(f"        cue: {st['cue']}")
         if st.get("notes"):
             lines.append(f"        notes: {st['notes']}")
+        if st.get("video"):
+            lines.append(f"        video: {st['video']}")
     return head + lines
 
 
@@ -175,6 +176,21 @@ def cmd_put_exercise(args):
     store.write("exercises", db["exercises"])
     write_stats()
     print(f"{action} exercise {ex['id']}.")
+
+
+def cmd_set_video(args):
+    """Point one set at its video (or clear it with `none`), leaving the rest of the set alone."""
+    db = store.load_all()
+    st = next((s for s in db["sets"] if s["id"] == args.set_id), None)
+    if st is None:
+        _fail([f"set {args.set_id} does not exist"])
+    st["video"] = None if args.url.lower() == "none" else args.url
+    errors = validate.database(db)
+    if errors:
+        _fail(errors)
+    store.write("sets", db["sets"])
+    write_stats(db)
+    print(f"Cleared video on {args.set_id}." if st["video"] is None else f"Set {args.set_id} video: {st['video']}")
 
 
 def write_stats(db=None):
@@ -342,6 +358,8 @@ def main(argv=None):
         (("session_id",), {}), (("bundle",), {}))
     add("bundle", cmd_bundle, "print a stored session as an editable bundle", (("session_id",), {}))
     add("put-exercise", cmd_put_exercise, "add or update one library exercise from a JSON file", (("file",), {}))
+    add("set-video", cmd_set_video, "link a set to its YouTube video, or `none` to clear it",
+        (("set_id",), {}), (("url",), {}))
     add("show", cmd_show, "print a stored session",
         (("session_id",), {}), (("--raw",), {"action": "store_true", "help": "include the original text"}))
     add("sessions", cmd_sessions, "list recent sessions", (("--last",), {"type": int, "default": 10}))
