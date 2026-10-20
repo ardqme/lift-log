@@ -311,9 +311,9 @@ def cmd_volume(args):
     weeks = list(table)
     muscles = [m for m in schema.MUSCLES if any(table[w].get(m) for w in weeks)]
     if not muscles:
-        print("No working sets in that window.")
+        print("No sets in that window.")
         return
-    print("hard sets per muscle, weeks starting Monday")
+    print("sets per muscle (warm-ups excluded), weeks starting Monday")
     print(f"{'':<16}" + "".join(f"{w[5:]:>8}" for w in weeks))
     for m in muscles:
         print(f"{m:<16}" + "".join(f"{calc._trim(table[w].get(m, 0)):>8}" for w in weeks))
@@ -369,7 +369,7 @@ def main(argv=None):
     add("prs", cmd_prs, "PRs, rep maxes, and best sets for an exercise", (("exercise",), {}))
     add("e1rm", cmd_e1rm, "e1RM per session for an exercise",
         (("exercise",), {}), (("--last",), {"type": int, "default": 20}))
-    add("volume", cmd_volume, "hard sets per muscle per week", (("--weeks",), {"type": int, "default": 4}))
+    add("volume", cmd_volume, "sets per muscle per week, warm-ups excluded", (("--weeks",), {"type": int, "default": 4}))
     add("cues", cmd_cues, "recent cues for an exercise",
         (("exercise",), {}), (("--last",), {"type": int, "default": 5}))
     add("load", cmd_load, "session RPE × minutes per session", (("--last",), {"type": int, "default": 10}))

@@ -98,5 +98,6 @@ _Avoid_: Record (unqualified)
 **Best set**:
 The top drop, myo-rep, or myo-match set on an exercise, which never counts as a PR.
 
-**Hard set**:
-Any non-warm-up set, counted toward weekly volume per muscle: one for primary muscles, half for secondary.
+**Weekly volume**:
+Sets per muscle per week. Every set except a warm-up counts: one for each primary muscle, half for each secondary.
+_Avoid_: Hard set, working set

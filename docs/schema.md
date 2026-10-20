@@ -110,7 +110,7 @@ JSONL files. Top level: `generated` (timestamp), `lb_per_kg`, `exercises`, `volu
   latest filmed session, and the rest behind "More".
 - `volume`: `weeks` (Monday dates, at most 26), `muscles`, and `table[muscle][week index]`.
 - Each session, newest first: the session fields (bodyweight converted to `bodyweight_kg`),
-  `minutes`, `training_load`, `hard_sets`, and `sets`. Each set row carries `set_id`,
+  `minutes`, `training_load`, `set_count` (sets excluding warm-ups), and `sets`. Each set row carries `set_id`,
   `exercise_id`, `exercise` (name), `superset`, `type`, `segments` (display text), `load_kg` and
   `reps` (filled only for a one-segment reps set, for charts), `mode`, `effort` (`@7.5`, `2 RIR`),
   `gear`, `cue`, `notes`, `video_id`, and `pr` (`"e1rm"`, `"rep_max"`, or null: the set beat every
