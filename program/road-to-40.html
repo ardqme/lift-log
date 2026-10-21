@@ -197,7 +197,7 @@ details ul{padding-left:20px;margin:0}
   <section>
     <h2>How to run it</h2>
     <details open><summary>The week</summary><div class="body">
-      <p>Days 1 and 2 are the main-lift days: the two competition lifts, warm-up, and nothing else. They should fit in about an hour. Days 3 and 4 are the accessory days, done back to back. Saturday leads with a squat variation and a deadlift variation; Sunday with a bench variation (pin OHP in Strength II). Each phase has its own variations, loaded by RPE, then a pull, a shoulder exercise and a few extras. Accessory days don’t count toward the tonnage progression. The accessory list stays the same all cycle; deload weeks use half sets, and the final deload has none.</p>
+      <p>Days 1 and 2 are the main-lift days: the two competition lifts, warm-up, and nothing else. They should fit in about an hour. Days 3 and 4 are the accessory days, done back to back. Saturday leads with a squat variation and a deadlift variation; Sunday with a bench variation (pin OHP in Strength II). Each phase has its own variations, loaded by RPE, then accessory work, most of it taken to failure. Accessory days don’t count toward the tonnage progression. The accessory list stays the same all cycle; deload weeks use half sets, and the final deload has none.</p>
       <ul>
         <li>Keep at least 48 hours between Day 1 and Day 2.</li>
         <li>Do the lower accessory day first. It sits 2 days after deadlift and 3 days before squat, which keeps the squat and deadlift variations away from both heavy days.</li>
@@ -214,7 +214,7 @@ details ul{padding-left:20px;margin:0}
     <details><summary>Protecting your back</summary><div class="body">
       <ul>
         <li>Squat and deadlift are never heavy on the same day. All loaded hinging happens on Day 2, so your erectors get 4–5 days between hard exposures.</li>
-        <li>Saturday’s deadlift variation (RDL, pause deadlift, rack pull from just below the knee) is 2–3 sets, capped at RPE 7, done after the squat variation.</li>
+        <li>Saturday’s deadlift variation (RDL, pause deadlift, rack pull from just below the knee) stays at 2–3 sets of 3–8, RPE 7 or lower until rack pulls (RPE 8) in Strength II, and always comes after the squat variation.</li>
         <li>Belt on every set at or above 80%.</li>
         <li>Deadlift is capped at RPE 8.5 until test day. Stop any set when the brace leaks; that rep doesn’t count anyway.</li>
         <li>No heavy hinging in the first hour after waking.</li>
@@ -297,35 +297,40 @@ const H={1:"1x6@R7|3x6@70",2:"1x6@R7|3x6@72.5",3:"1x6@R7.5|4x6@70",4:"1x6@R7.5|4
 const DL={1:"1x5@R7|2x5@70",2:"1x5@R7|2x5@72.5",3:"1x5@R7.5|3x5@70",4:"1x5@R7.5|3x5@72.5",5:"1x5@R8|3x5@75",6:"1x5@R8|4x5@72.5",7:"1x5@R8|4x5@75",8:"1x5@R8.5|5x5@72.5",9:"2x5@60",
   10:"1x3@R7.5|2x5@72.5",11:"1x3@R8|3x5@72.5",12:"1x3@R8|3x5@75",13:"1x3@R8|4x5@72.5",14:"1x3@R8|4x5@75",15:"1x3@R8.5|4x5@77.5",16:"1x3@R8.5|5x5@75",17:"1x3@R8.5|5x5@77.5",18:"2x3@70",
   19:"1x1@R8|3x3@77.5",20:"1x1@R8|3x3@80",21:"1x1@R8|4x3@77.5",22:"1x1@R8.5|4x3@80",23:"1x1@R8.5|5x3@77.5",24:"1x1@R8.5|5x3@80",25:"1x1@R8.5|5x3@82.5",26:"1x1@R8.5|6x3@80"};
-// Accessory-day variations, loaded by RPE. Index 0–7 = the phase's 8 hard weeks.
-const RP=[7,7,7.5,7.5,8,8,8.5,8.5], RPD=[6,6,6.5,6.5,7,7,7,7];   // deadlift variations capped at RPE 7
+// Accessory days. v = lead variation (bold, RPE-loaded); a = accessory lines. Index 0–7 = the phase's 8 hard weeks.
+const RP=[7,7,7.5,7.5,8,8,8.5,8.5], RPD=[6,6,6.5,6.5,7,7,7,7];
 const SV=[3,3,4,4,4,5,5,5], SVD=[2,2,3,3,3,3,3,3];
-const VAR={
-  A:{sq:{n:"Belt squat",sub:"",r:10},dl:{n:"Romanian deadlift",sub:"Stop at mid-shin, flat back",r:8},up:{n:"Close-grip bench",sub:"Index finger on the ring",r:8}},
-  B:{sq:{n:"Pause squat",sub:"2–3 s pause in the hole",r:4},dl:{n:"Pause deadlift",sub:"Pause just below the knee",r:3},up:{n:"Spoto press",sub:"Pause 1″ off the chest",r:5}},
-  C:{sq:{n:"Pin squat",sub:"Pins just above parallel, dead stop",r:3},dl:{n:"Rack pull",sub:"Bar just below the knee",r:3},up:{n:"Pin OHP",sub:"From pins at forehead height",r:3}}
+const F="4 × 10–12 to failure";
+const PH={
+  A:{lo:{v:[{n:"Belt squat",s:3,r:10,rpe:7},{n:"Romanian deadlift",sub:"Stop at mid-shin, flat back",s:2,r:8,rpe:7}],
+         a:["Seated DB shrug "+F,"Lat pulldown "+F]},
+     up:{v:[{n:"Close-grip bench",sub:"Index finger on the ring",s:3,r:10,rpe:7}],
+         a:["DB lateral raise "+F,"Superset A1: Incline DB curl "+F,"Superset A2: Rope overhead triceps extension "+F]}},
+  B:{lo:{v:[{n:"Pause squat",sub:"2–3 s pause in the hole",s:SV,r:4,rpe:RP},{n:"Pause deadlift",sub:"Pause just below the knee",s:SVD,r:3,rpe:RPD}],
+         a:["Weighted pull-up 4 × 6","Dragon flag 4 sets to failure"]},
+     up:{v:[{n:"Spoto press",sub:"Pause 1″ off the chest",s:3,r:5,rpe:7}],
+         a:["Cable lateral raise "+F,"Triceps pushdown "+F,"Bayesian cable curl "+F]}},
+  C:{lo:{v:[{n:"Pin squat",sub:"Pins just above parallel, dead stop",s:5,r:3,rpe:7},{n:"Rack pull",sub:"Bar just below the knee",s:3,r:3,rpe:8}],
+         a:["Chest-supported row "+F,"Hanging knee raise 4 sets to failure"]},
+     up:{v:[{n:"Pin OHP",sub:"From pins at forehead height",s:5,r:3,rpe:9}],
+         a:["Cable rear-delt fly "+F,"DB pullover 4 × 10 @ RPE 8"]}}
 };
 const START_OF={A:1,B:10,C:19};
-function varEx(b,w,k){const v=VAR[b][k],i=w-START_OF[b],dl=k==="dl";
+function varEx(b,w,v){const i=w-START_OF[b],at=x=>Array.isArray(x)?x[i]:x;
   if(DELOAD.has(w))return {n:v.n,sub:v.sub,t:`2 × ${v.r} @ RPE 6`};
-  return {n:v.n,sub:v.sub,t:`${(dl?SVD:SV)[i]} × ${v.r} @ RPE ${(dl?RPD:RP)[i]}`}}
-
-// Accessory lists: lo = Saturday, up = Sunday. Pull and shoulder change by phase; extras stay. Half sets on deloads.
-const PULL={A:"Lat pulldown 4×10",B:"Weighted pull-up 4×6",C:"Chest-supported row 4×8"};
-const SHLD={A:"DB lateral raise 3×15",B:"Cable lateral raise 3×12",C:"Rear-delt fly 3×15"};
-const ACC={};for(const b of ["A","B","C"])ACC[b]={lo:[PULL[b],"Lying leg curl 3×10","Pallof press 3×10 per side"],up:[SHLD[b],"Triceps pushdown 3×12","Face pull 3×15"]};
+  return {n:v.n,sub:v.sub,t:`${at(v.s)} × ${v.r} @ RPE ${at(v.rpe)}`}}
 
 function parse(s){return s.split("|").map(p=>{const m=p.match(/^(\d+)x(\d+)@(R?)([\d.]+)$/);return{s:+m[1],r:+m[2],rpe:m[3]?+m[4]:null,pct:m[3]?null:+m[4]}})}
 
 function weekPlan(w){
-  const b=blockOf(w),acc=ACC[b],s=add(START,7*(w-1));
+  const b=blockOf(w),s=add(START,7*(w-1));
   if(w===27){return[
     {t:"Day 1",when:add(s,1),focus:"Openers: squat + OHP",ex:[{n:"Squat",l:"sq",x:"1x1@91|2x2@70",sub:"Opener single"},{n:"Overhead press",l:"ohp",x:"1x1@91|2x2@70",sub:"Opener single"}],acc:[]},
     {t:"Day 2",when:add(s,3),focus:"Openers: bench + deadlift",ex:[{n:"Bench press",l:"bp",x:"1x1@91|2x2@70",sub:"Opener single, paused"},{n:"Deadlift",l:"dl",x:"2x2@70",sub:"Fast, crisp pulls"}],acc:[]},
     {t:"Day 3",when:add(s,5),focus:"Light squat + OHP",ex:[{n:"Squat",l:"sq",x:"2x3@60"},{n:"Overhead press",l:"ohp",x:"2x3@60"}],acc:[]},
     {t:"Day 4",when:add(s,6),focus:"Light bench + deadlift",ex:[{n:"Bench press",l:"bp",x:"2x3@60",sub:"Paused"},{n:"Deadlift",l:"dl",x:"2x2@60"}],acc:[]}
   ]}
-  const lo=[varEx(b,w,"sq"),varEx(b,w,"dl")],up=[varEx(b,w,"up")];
+  const P=PH[b],lo=P.lo.v.map(v=>varEx(b,w,v)),up=P.up.v.map(v=>varEx(b,w,v)),acc={lo:P.lo.a,up:P.up.a};
   return[
     {t:"Day 1",when:add(s,1),focus:"Squat + OHP",ex:[{n:"Squat",l:"sq",x:H[w],log:1},{n:"Overhead press",l:"ohp",x:H[w],log:1}],acc:[]},
     {t:"Day 2",when:add(s,3),focus:"Bench + deadlift",ex:[{n:"Bench press",l:"bp",x:H[w],sub:"Paused, competition grip",log:1},{n:"Deadlift",l:"dl",x:DL[w],log:1}],acc:[]},
@@ -408,7 +413,7 @@ function renderWeek(){
   if(sel===28){list.innerHTML=testHTML();return}
   list.innerHTML=weekPlan(sel).map(d=>`<div class="day${d.a?" accday":""}"><div class="day-h"><h3>${d.t} · ${d.focus}</h3><span class="when">${fmt(d.when)}</span></div>
     ${d.ex.map(x=>exHTML(x,sel)).join("")}
-    ${d.acc.length?`<div class="acc-h">Accessories${DELOAD.has(sel)?" · half sets":""}</div>`+d.acc.map(a=>`<div class="ex acc"><div class="n">${a}</div><div></div></div>`).join(""):""}</div>`).join("");
+    ${d.acc.length?`<div class="acc-h">Accessories${DELOAD.has(sel)?" · half sets, stop 2 reps short of failure":""}</div>`+d.acc.map(a=>`<div class="ex acc"><div class="n">${a}</div><div></div></div>`).join(""):""}</div>`).join("");
   list.querySelectorAll(".topin input,.topin select").forEach(el=>el.addEventListener("change",ev=>{
     const k=ev.target.closest(".topin").dataset.k,L=st.log[k]||(st.log[k]={}),f=ev.target.dataset.f,v=parseFloat(ev.target.value);
     if(isNaN(v))delete L[f];else L[f]=v;save();renderWeek()}));
