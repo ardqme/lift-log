@@ -148,13 +148,13 @@ details ul{padding-left:20px;margin:0}
   <section>
     <div class="sec-head"><h2>The week</h2><p class="hint">Suggested days. Move them as long as the rules under “The week” below hold.</p></div>
     <div class="shape">
-      <div class="dow main"><span class="d">Mon</span><span class="w">Squat + OHP</span></div>
-      <div class="dow off"><span class="d">Tue</span><span class="w">Zone 2</span></div>
-      <div class="dow main"><span class="d">Wed</span><span class="w">Bench + DL</span></div>
-      <div class="dow off"><span class="d">Thu</span><span class="w">Intervals</span></div>
-      <div class="dow acc"><span class="d">Fri</span><span class="w">Acc · lower</span></div>
-      <div class="dow acc"><span class="d">Sat</span><span class="w">Acc · upper</span></div>
-      <div class="dow off"><span class="d">Sun</span><span class="w">Zone 2</span></div>
+      <div class="dow off"><span class="d">Mon</span><span class="w">Zone 2</span></div>
+      <div class="dow main"><span class="d">Tue</span><span class="w">Squat + OHP</span></div>
+      <div class="dow off"><span class="d">Wed</span><span class="w">Zone 2</span></div>
+      <div class="dow main"><span class="d">Thu</span><span class="w">Bench + DL</span></div>
+      <div class="dow off"><span class="d">Fri</span><span class="w">Intervals</span></div>
+      <div class="dow acc"><span class="d">Sat</span><span class="w">Acc · lower</span></div>
+      <div class="dow acc"><span class="d">Sun</span><span class="w">Acc · upper</span></div>
     </div>
   </section>
 
@@ -201,7 +201,8 @@ details ul{padding-left:20px;margin:0}
       <ul>
         <li>Keep at least 48 hours between Day 1 and Day 2.</li>
         <li>Do the lower accessory day first. It sits 2 days after deadlift and 3 days before squat, which keeps the paused squat away from both heavy days.</li>
-        <li>The upper day can fall the day before Day 1. Overhead press recovers fast enough.</li>
+        <li>The upper day sits two days before Day 1, plenty for overhead press to recover.</li>
+        <li>Zone 2 after either accessory day is fine if you want the extra ride.</li>
         <li>If a week gets squeezed, drop the upper accessory day first, then the accessory list on the lower day. Keep the paused squat if you can.</li>
       </ul>
     </div></details>
@@ -233,7 +234,7 @@ details ul{padding-left:20px;margin:0}
       <p>Tap “Use as e1RM” to carry a day’s number into the next session. Leave it alone if the day was off for reasons that won’t repeat. Back-offs on deload weeks and the accessory-day variations use the e1RM at the top of the page.</p>
     </div></details>
     <details><summary>Cycling alongside</summary><div class="body">
-      <p>Two Zone 2 rides and one interval session a week: Zone 2 on Tuesday and Sunday, intervals on Thursday. Thursday is the only day that isn’t within 24 hours of Day 1 or Day 2, so keep intervals there if the week shifts.</p>
+      <p>Cardio takes Monday, Wednesday and Friday: Zone 2 on Monday and Wednesday, intervals on Friday. Monday and Wednesday each fall the day before a main-lift day, so they stay easy; Friday is the only cardio day not within 24 hours of Day 1 or Day 2. Optional Zone 2 after the Saturday and Sunday accessory sessions.</p>
       <p>In week 26, shorten the interval session. From April 19: Zone 2 only, 45 minutes or less, and nothing on April 26.</p>
     </div></details>
     <details><summary>Test day</summary><div class="body">
@@ -275,16 +276,16 @@ function blockOf(w){return w<=9?"A":w<=18?"B":w<=27?"C":"T"}
 const DELOAD=new Set([9,18,27]);
 const NOTES={
   1:"Accumulation starts. Load the top set from your e1RM, record the RPE it actually took, and run the back-offs off the day’s e1RM.",
-  6:"Thanksgiving week. Run it as written if you can; drop the upper accessory day if you can’t.",
+  6:"Thanksgiving is Thursday. Move Day 2 to Friday, do the lower accessory day Sunday, and drop the upper day.",
   8:"Last hard week of Accumulation.",
   9:"Deload. Accessories at half the listed sets.",
-  10:"Strength I starts: top triple, then back-off fives. Christmas is Friday, so move the lower accessory day to Thursday or skip it.",
-  11:"New Year’s Day is Friday. Move the lower accessory day to Thursday or Saturday.",
+  10:"Strength I starts: top triple, then back-off fives. Christmas Eve is Thursday. If Day 2 doesn’t fit, move it to Friday and push the accessory days to Sunday and Monday.",
+  11:"New Year’s Eve is Thursday. If Day 2 doesn’t fit, move it to Friday and push the accessory days to Sunday and Monday.",
   17:"Last hard week of Strength I.",
   18:"Deload. Accessories at half the listed sets.",
   19:"Strength II starts: top single, then back-off triples.",
-  26:"Last hard week of the cycle and the heaviest top singles. Carry their e1RMs forward; they set your test-day attempts. Last heavy deadlift, 15 days out.",
-  27:"Final deload. Four light days on the big four and no accessories. Openers on Monday and Wednesday, then two easy technique days. Rest Sunday and Monday. Zone 2 only, 45 minutes or less.",
+  26:"Last hard week of the cycle and the heaviest top singles. Carry their e1RMs forward; they set your test-day attempts. Last heavy deadlift, 12 days out.",
+  27:"Final deload. Four light days on the big four and no accessories. Openers Tuesday and Thursday, then two light days on the weekend. Rest Monday. Zone 2 only, 45 minutes or less.",
   28:"Test day. Squat, bench, OHP, deadlift."
 };
 
@@ -320,20 +321,20 @@ function bvName(b){return b==="A"?["Close-grip bench",""]:["Spoto press","Pause 
 function weekPlan(w){
   const b=blockOf(w),acc=ACC[b],s=add(START,7*(w-1));
   if(w===27){return[
-    {t:"Day 1",when:add(s,0),focus:"Openers: squat + OHP",ex:[{n:"Squat",l:"sq",x:"1x1@91|2x2@70",sub:"Opener single"},{n:"Overhead press",l:"ohp",x:"1x1@91|2x2@70",sub:"Opener single"}],acc:[]},
-    {t:"Day 2",when:add(s,2),focus:"Openers: bench + deadlift",ex:[{n:"Bench press",l:"bp",x:"1x1@91|2x2@70",sub:"Opener single, paused"},{n:"Deadlift",l:"dl",x:"2x2@70",sub:"Fast, crisp pulls"}],acc:[]},
-    {t:"Day 3",when:add(s,4),focus:"Light squat + OHP",ex:[{n:"Squat",l:"sq",x:"2x3@60"},{n:"Overhead press",l:"ohp",x:"2x3@60"}],acc:[]},
-    {t:"Day 4",when:add(s,5),focus:"Light bench + deadlift",ex:[{n:"Bench press",l:"bp",x:"2x3@60",sub:"Paused"},{n:"Deadlift",l:"dl",x:"2x2@60"}],acc:[]}
+    {t:"Day 1",when:add(s,1),focus:"Openers: squat + OHP",ex:[{n:"Squat",l:"sq",x:"1x1@91|2x2@70",sub:"Opener single"},{n:"Overhead press",l:"ohp",x:"1x1@91|2x2@70",sub:"Opener single"}],acc:[]},
+    {t:"Day 2",when:add(s,3),focus:"Openers: bench + deadlift",ex:[{n:"Bench press",l:"bp",x:"1x1@91|2x2@70",sub:"Opener single, paused"},{n:"Deadlift",l:"dl",x:"2x2@70",sub:"Fast, crisp pulls"}],acc:[]},
+    {t:"Day 3",when:add(s,5),focus:"Light squat + OHP",ex:[{n:"Squat",l:"sq",x:"2x3@60"},{n:"Overhead press",l:"ohp",x:"2x3@60"}],acc:[]},
+    {t:"Day 4",when:add(s,6),focus:"Light bench + deadlift",ex:[{n:"Bench press",l:"bp",x:"2x3@60",sub:"Paused"},{n:"Deadlift",l:"dl",x:"2x2@60"}],acc:[]}
   ]}
   const lo=[];if(PSQ[w])lo.push({n:"Paused squat",l:"sq",x:PSQ[w],sub:"2 s pause in the hole"});
   const up=[];if(BV[w]){const [bn,bs]=bvName(b);up.push({n:bn,l:"bp",x:BV[w],sub:bs})}
   if(b==="A")up.push({n:"Seated DB press",t:(w===9?"2":w<=3?"3":"4")+" × 10 @ RPE 8"});
   else if(OV[w])up.push({n:"Strict OHP",l:"ohp",x:OV[w],sub:"Volume, no leg drive"});
   return[
-    {t:"Day 1",when:add(s,0),focus:"Squat + OHP",ex:[{n:"Squat",l:"sq",x:H[w],log:1},{n:"Overhead press",l:"ohp",x:H[w],log:1}],acc:[]},
-    {t:"Day 2",when:add(s,2),focus:"Bench + deadlift",ex:[{n:"Bench press",l:"bp",x:H[w],sub:"Paused, competition grip",log:1},{n:"Deadlift",l:"dl",x:DL[w],log:1}],acc:[]},
-    {t:"Day 3",when:add(s,4),focus:"Accessories: lower + back",ex:lo,acc:acc.lo,a:true},
-    {t:"Day 4",when:add(s,5),focus:"Accessories: upper",ex:up,acc:acc.up,a:true}
+    {t:"Day 1",when:add(s,1),focus:"Squat + OHP",ex:[{n:"Squat",l:"sq",x:H[w],log:1},{n:"Overhead press",l:"ohp",x:H[w],log:1}],acc:[]},
+    {t:"Day 2",when:add(s,3),focus:"Bench + deadlift",ex:[{n:"Bench press",l:"bp",x:H[w],sub:"Paused, competition grip",log:1},{n:"Deadlift",l:"dl",x:DL[w],log:1}],acc:[]},
+    {t:"Day 3",when:add(s,5),focus:"Accessories: lower + back",ex:lo,acc:acc.lo,a:true},
+    {t:"Day 4",when:add(s,6),focus:"Accessories: upper",ex:up,acc:acc.up,a:true}
   ];
 }
 // Weekly tonnage on Days 1–2 only (accessory days not counted), planned from the current e1RMs
