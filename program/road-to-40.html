@@ -1,0 +1,398 @@
+<title>Road to 40</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: single column training log. Header + numbers, plate-colored phase strip, week navigator, four session cards (two main-lift days, two accessory days), reference below. */
+:root{
+  --bg:#F1F3EF; --surface:#FFFFFF; --sunk:#E5E8E3; --fg:#181B19; --muted:#5B635D; --line:#D4D9D3;
+  --accent:#1D4C99; --accent-ink:#FFFFFF;
+  --p-a:#2D8753; --p-b:#C9930F; --p-c:#1D4C99; --p-d:#BE352E; --p-e:#383D3A; --p-f:#8C948E; --p-t:#A9782A;
+  --f-display:"Big Shoulders Display","Oswald","Arial Narrow",sans-serif;
+  --f-body:"Barlow","Helvetica Neue",Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111312; --surface:#191C1A; --sunk:#222623; --fg:#E6E9E5; --muted:#99A29B; --line:#2D322F;
+  --accent:#7AA3EA; --accent-ink:#0E1420;
+  --p-a:#4CAE77; --p-b:#E2B53D; --p-c:#6B97E3; --p-d:#E2645C; --p-e:#B9C0BA; --p-f:#6E766F; --p-t:#D3A657;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#111312; --surface:#191C1A; --sunk:#222623; --fg:#E6E9E5; --muted:#99A29B; --line:#2D322F;
+  --accent:#7AA3EA; --accent-ink:#0E1420;
+  --p-a:#4CAE77; --p-b:#E2B53D; --p-c:#6B97E3; --p-d:#E2645C; --p-e:#B9C0BA; --p-f:#6E766F; --p-t:#D3A657;
+  color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:32px}
+h1,h2,h3{font-family:var(--f-display);font-weight:800;letter-spacing:.01em;line-height:1;margin:0;text-wrap:balance}
+h1{font-size:clamp(3rem,13vw,5.2rem);text-transform:uppercase}
+h2{font-size:1.75rem;text-transform:uppercase}
+h3{font-size:1.3rem;text-transform:uppercase}
+.eyebrow{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+header{display:flex;flex-direction:column;gap:10px}
+.countdown{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.countdown b{font-family:var(--f-display);font-size:2.2rem;line-height:1;color:var(--accent)}
+.lede{color:var(--muted);max-width:60ch;margin:0}
+section{display:flex;flex-direction:column;gap:14px}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.hint{font-size:.88rem;color:var(--muted);margin:0}
+
+/* week shape */
+.shape{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.dow{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:8px 6px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.dow .d{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.dow .w{font-family:var(--f-display);font-size:1rem;text-transform:uppercase;font-weight:700;line-height:1.1;overflow-wrap:anywhere}
+.dow.main{border-color:var(--fg)}
+.dow.acc{background:var(--sunk)}
+.dow.off .w{color:var(--muted);font-weight:700}
+
+/* numbers */
+.lifts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:620px){.lifts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.lift{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.lift .name{font-family:var(--f-display);font-size:1.25rem;text-transform:uppercase}
+.lift label{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lift input{width:100%;font-family:var(--f-mono);font-size:1.35rem;padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg)}
+.lift input.small{font-size:1rem}
+.lift .gap{font-size:.82rem;color:var(--muted)}
+input:focus-visible,button:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* phase strip */
+.strip{display:grid;grid-template-columns:repeat(28,minmax(0,1fr));gap:3px}
+.seg{height:34px;border:0;border-radius:2px;padding:0;cursor:pointer;background:var(--c);position:relative;font:inherit}
+.seg.deload{opacity:.38}
+.seg.sel{outline:2px solid var(--fg);outline-offset:2px;z-index:1}
+.seg.now::after{content:"";position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);border:5px solid transparent;border-bottom-color:var(--fg)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.82rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:2px;background:var(--c);display:inline-block}
+
+/* week nav */
+.weeknav{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px}
+.weeknav button{flex:none;width:44px;height:44px;border-radius:4px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-size:1.2rem;cursor:pointer}
+.weeknav button:disabled{opacity:.35;cursor:default}
+.wk{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.wk h2{font-size:1.9rem}
+.pill{align-self:flex-start;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--c);color:var(--bg)}
+.note{border-left:3px solid var(--c);padding:4px 0 4px 12px;margin:0;color:var(--fg);max-width:65ch}
+
+/* sessions */
+.days{display:flex;flex-direction:column;gap:14px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.day.accday{background:var(--bg)}
+.day-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.day-h .when{font-size:.85rem;color:var(--muted)}
+.ex{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.ex:last-child{border-bottom:0}
+.ex .n{font-weight:600;min-width:0}
+.ex .n small{display:block;font-weight:400;color:var(--muted);font-size:.82rem}
+.ex.main .n{font-family:var(--f-display);font-size:1.2rem;text-transform:uppercase;font-weight:700}
+.ex.acc{padding-block:7px}
+.ex.acc .n{font-weight:400;color:var(--fg)}
+.sets{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}
+.set{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.92rem;white-space:nowrap}
+.set .ld{font-weight:500;color:var(--fg);display:inline-block;min-width:4.2ch;text-align:right}
+.set .rx{color:var(--muted)}
+.acc-h{padding:8px 14px 4px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--sunk)}
+
+/* attempts */
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+td.l{font-family:var(--f-display);font-size:1.15rem;text-transform:uppercase;font-weight:700}
+td .plates{display:block;font-size:.75rem;color:var(--muted);font-family:var(--f-body)}
+td .pr{color:var(--p-a);font-weight:600}
+tr:last-child td{border-bottom:0}
+
+/* calculator */
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:end}
+@media (max-width:620px){.calc{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.calc label{display:flex;flex-direction:column;gap:4px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;min-width:0}
+.calc input,.calc select{font-family:var(--f-mono);font-size:1rem;padding:8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);width:100%}
+.calc .out{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:12px}
+.calc .out b{font-family:var(--f-display);font-size:2rem}
+.btn{font:600 .95rem var(--f-body);padding:10px 16px;border-radius:4px;border:0;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+
+/* reference */
+details{background:var(--surface);border:1px solid var(--line);border-radius:6px}
+summary{cursor:pointer;padding:12px 14px;font-family:var(--f-display);font-size:1.2rem;text-transform:uppercase;font-weight:700;list-style:none;display:flex;justify-content:space-between}
+summary::after{content:"+";color:var(--muted)}
+details[open] summary::after{content:"–"}
+details .body{padding:0 14px 14px;max-width:68ch}
+details p,details li{margin:0 0 8px}
+details ul{padding-left:20px;margin:0}
+@media (prefers-reduced-motion:no-preference){.seg{transition:transform .12s}.seg:hover{transform:translateY(-2px)}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Squat · Bench · Deadlift · Overhead press — 4 days a week</div>
+    <h1>Road to 40</h1>
+    <div class="countdown"><b id="days">—</b><span id="daysTxt">days to test day, Tuesday April 27, 2027</span></div>
+    <p class="lede">27 weeks of block periodization, peaking for a four-lift test on your 40th birthday. Two main-lift days carry only the competition lifts; everything else lives on two back-to-back accessory days. Every load is calculated from the maxes below, rounded to 5 lb. Change a max and the whole program updates.</p>
+  </header>
+
+  <section>
+    <div class="sec-head"><h2>The week</h2><p class="hint">Suggested days. Move them as long as the rules under “The week” below hold.</p></div>
+    <div class="shape">
+      <div class="dow main"><span class="d">Mon</span><span class="w">Squat + OHP</span></div>
+      <div class="dow off"><span class="d">Tue</span><span class="w">Zone 2</span></div>
+      <div class="dow main"><span class="d">Wed</span><span class="w">Bench + DL</span></div>
+      <div class="dow off"><span class="d">Thu</span><span class="w">Intervals</span></div>
+      <div class="dow acc"><span class="d">Fri</span><span class="w">Acc · lower</span></div>
+      <div class="dow acc"><span class="d">Sat</span><span class="w">Acc · upper</span></div>
+      <div class="dow off"><span class="d">Sun</span><span class="w">Rest</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Your numbers</h2><p class="hint">Estimated 1RM drives the loads. Lifetime best sets the PR line.</p></div>
+    <div class="lifts" id="lifts"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Phases</h2><p class="hint">Tap a week. Faded weeks are deloads.</p></div>
+    <div class="strip" id="strip" role="tablist" aria-label="Weeks"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section>
+    <div class="weeknav">
+      <button id="prev" aria-label="Previous week">‹</button>
+      <div class="wk">
+        <span class="pill" id="pill"></span>
+        <h2 id="wkTitle"></h2>
+        <span class="hint" id="wkDates"></span>
+      </div>
+      <button id="next" aria-label="Next week">›</button>
+    </div>
+    <p class="note" id="wkNote"></p>
+    <div class="days" id="days-list"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>e1RM calculator</h2><p class="hint">Enter a top set to update a max (RTS-style RPE table).</p></div>
+    <div class="calc">
+      <label>Lift<select id="cLift"><option value="sq">Squat</option><option value="bp">Bench</option><option value="dl">Deadlift</option><option value="ohp">OHP</option></select></label>
+      <label>Weight (lb)<input id="cW" type="number" inputmode="decimal" value="365"></label>
+      <label>Reps<input id="cR" type="number" inputmode="numeric" min="1" max="8" value="3"></label>
+      <label>RPE<select id="cRpe"><option>6</option><option>6.5</option><option>7</option><option>7.5</option><option selected>8</option><option>8.5</option><option>9</option><option>9.5</option><option>10</option></select></label>
+      <div class="out"><div><span class="eyebrow">Estimated 1RM</span><br><b class="num" id="cOut">—</b></div><button class="btn" id="cUse">Use as max</button></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>How to run it</h2>
+    <details open><summary>The week</summary><div class="body">
+      <p>Days 1 and 2 are the main-lift days: the two competition lifts, warm-up, and nothing else. They should fit in about an hour. Days 3 and 4 are the accessory days, done back to back. Each one leads with a variation of a main lift (paused squat on the lower day; a bench variation and overhead volume on the upper day), then the accessory list.</p>
+      <ul>
+        <li>Keep at least 48 hours between Day 1 and Day 2.</li>
+        <li>Do the lower accessory day first. It sits 2 days after deadlift and 3 days before squat, which keeps the paused squat away from both heavy days.</li>
+        <li>The upper day can fall the day before Day 1. Overhead press recovers fast enough.</li>
+        <li>If a week gets squeezed, drop the upper accessory day first, then the accessory list on the lower day. Keep the paused squat if you can.</li>
+      </ul>
+    </div></details>
+    <details><summary>Warm-up</summary><div class="body">
+      <p>Main-lift days (about 12 minutes): five minutes easy on the bike, then the McGill big three — curl-up, side plank, bird dog — in short holds of about 10 seconds, descending reps (for example 5-3-1 per side). Add hip airplanes or 90/90 switches, 5 per side.</p>
+      <p>Ramp the first main lift: bar ×10, 40% ×5, 60% ×3, 75% ×2, 85% ×1 before anything heavier. The second main lift needs only two or three ramp sets.</p>
+      <p>Accessory days: bike and the McGill big three, then two or three ramp sets for the lead variation.</p>
+    </div></details>
+    <details><summary>Protecting your back</summary><div class="body">
+      <ul>
+        <li>Squat and deadlift are never heavy on the same day. All loaded hinging happens on Day 2, so your erectors get 4–5 days between hard exposures.</li>
+        <li>The lower accessory day has no loaded hinge. Back extensions there are light and stop well short of failure.</li>
+        <li>Belt on every set at or above 80%.</li>
+        <li>Deadlift is capped at RPE 8.5 except the mock test and test day. Stop any set when the brace leaks; that rep doesn’t count anyway.</li>
+        <li>No heavy hinging in the first hour after waking.</li>
+        <li>If your back feels off during warm-up, swap that day’s deadlift for block pulls just below the knee or trap bar at the same RPE, and drop the back extensions that week. If it spasms, run that week as a deload rather than training through it.</li>
+        <li>The McGill work stays in the warm-up even when you’re short on time. It’s the cheapest insurance in the program.</li>
+      </ul>
+    </div></details>
+    <details><summary>Percentages, RPE and updating maxes</summary><div class="body">
+      <p>Percentages are of your estimated 1RM. Top singles are prescribed by RPE; the load shown next to them is what that RPE should look like if your max is accurate.</p>
+      <p>If a top single lands a full RPE harder than prescribed, take 5% off the back-off sets that day. If it lands a full RPE easier, add 2.5%.</p>
+      <p>Update your maxes with the calculator at four points: after week 1 (calibration sets), after week 12 (first top singles), after week 17 (mock test), and after week 25 (heaviest singles). Week 25 sets your test-day attempts.</p>
+    </div></details>
+    <details><summary>Cycling alongside</summary><div class="body">
+      <p>Intervals go on Thursday. Never schedule intervals in the 24 hours before Day 1 or Day 2. If you do a second interval session, put it after the upper accessory day on Saturday, not Sunday. Zone 2 fits on Tuesday, Sunday, or after any lifting session.</p>
+      <p>From March 29: one interval session a week at most. From April 19: Zone 2 only, 45 minutes or less, and nothing on April 26.</p>
+    </div></details>
+    <details><summary>Test day</summary><div class="body">
+      <p>Order: squat, bench, overhead press, deadlift. Three attempts each, 5–8 minutes between attempts, and about 15 minutes between lifts. Use the same warm-up and ramp you rehearsed at the mock test.</p>
+      <p>Run it like a meet: squat to honest depth, pause bench on a spotter’s “press” command, record every attempt. Take the second attempt off how the opener moved: fast opener, go to the planned second or a bit above; grindy opener, repeat-plus-5.</p>
+    </div></details>
+  </section>
+</div>
+
+<script>
+const LIFTS={sq:"Squat",bp:"Bench",dl:"Deadlift",ohp:"OHP"};
+const DEF={e:{sq:405,bp:315,dl:420,ohp:205},best:{sq:445,bp:365,dl:465,ohp:235}};
+let st=JSON.parse(JSON.stringify(DEF));
+try{const s=JSON.parse(localStorage.getItem("road427")||"null");if(s&&s.e&&s.best)st=s}catch(e){}
+function save(){try{localStorage.setItem("road427",JSON.stringify(st))}catch(e){}}
+
+const START=new Date(2026,9,19); // Mon Oct 19 2026
+const TEST=new Date(2027,3,27);
+const DAYMS=864e5;
+const r5=x=>Math.round(x/5)*5;
+const fmt=d=>d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+const add=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
+
+// RTS-style %1RM by reps-to-failure (x = reps + 10 - RPE)
+const BASE=[100,95.5,92.2,89.2,86.3,83.7,81.1,78.6,76.2,73.9,70.7,68.0];
+function pctFor(reps,rpe){const x=reps+10-rpe,v=i=>BASE[Math.min(Math.max(i,1),12)-1],lo=Math.floor(x),hi=Math.ceil(x);return v(lo)+(v(hi)-v(lo))*(x-lo)}
+
+const BLOCKS={
+  A:{name:"Accumulation",c:"--p-a",desc:"Moderate loads, sets of 5–8. Rebuild work capacity and groove the competition lifts. Your hypertrophy base makes this phase move quickly."},
+  B:{name:"Strength I",c:"--p-b",desc:"Sets of 2–5 at 75–85%. Volume comes down, intensity goes up."},
+  C:{name:"Strength II",c:"--p-c",desc:"Top singles at RPE 8 return, followed by heavier back-off triples and doubles. Accessory lists shrink. Ends with a mock test."},
+  D:{name:"Intensification",c:"--p-d",desc:"Built on your post-mock maxes. Singles climb toward RPE 9, back-offs move to doubles at 85–87.5%."},
+  E:{name:"Peak",c:"--p-e",desc:"Heavy singles, volume down about 40%. Accessory days are short."},
+  F:{name:"Taper",c:"--p-f",desc:"Openers early in the week, technique Friday, then rest."},
+  T:{name:"Test",c:"--p-t",desc:""}
+};
+function blockOf(w){return w<=6?"A":w<=11?"B":w<=17?"C":w<=23?"D":w<=26?"E":w===27?"F":"T"}
+const DELOAD=new Set([6,11,23]);
+const NOTES={
+  1:"Calibration week. On Days 1 and 2, work up to a top set of 5 at RPE 8 on squat, bench and OHP (deadlift: 5 at RPE 7). Put each one in the calculator below, update your maxes, and the rest of the program re-scales.",
+  6:"Deload, Thanksgiving week. Accessories at half the listed sets.",
+  10:"Christmas is Friday. Move the lower accessory day to Thursday or skip it.",
+  11:"Deload. New Year’s Day is Friday, so both accessory days are optional. Accessories at half sets.",
+  12:"Top singles return. Log each one in the calculator; update a max if it moves by 5 lb or more.",
+  17:"Mock test. Rehearse test-day warm-up and order. Singles at RPE 9, not grinders. Update all four maxes before week 18.",
+  23:"Deload before the peak. Accessories at half sets.",
+  24:"Peak starts. One interval ride a week at most from here.",
+  25:"Heaviest singles of the cycle. Update maxes from these; they set your test-day attempts.",
+  26:"Last heavy deadlift, 13 days out.",
+  27:"Openers Monday and Wednesday, one technique session Friday, then rest Saturday through Monday. Zone 2 only, 45 minutes or less.",
+  28:"Test day. Squat, bench, OHP, deadlift."
+};
+
+const H={1:"1x5@R8|3x6@67.5",2:"4x6@70",3:"4x6@72.5",4:"5x5@75",5:"5x5@77.5",6:"3x5@65",7:"5x4@77.5",8:"5x3@80",9:"5x3@82.5",10:"4x2@85",11:"3x3@70",12:"1x1@R8|4x3@80",13:"1x1@R8|4x3@82.5",14:"1x1@R8|3x3@85",15:"1x1@R8.5|3x2@87.5",16:"1x1@R8.5|3x2@85",17:"1x1@R9|2x2@80",18:"1x1@R8|4x3@82.5",19:"1x1@R8|3x3@85",20:"1x1@R8.5|4x2@85",21:"1x1@R8.5|3x2@87.5",22:"1x1@R9|2x2@87.5",23:"3x3@70",24:"1x1@R8.5|3x2@85",25:"1x1@R9|2x2@85",26:"1x1@R8|2x1@85"};
+const DL={1:"1x5@R7|2x5@67.5",2:"3x5@70",3:"3x5@72.5",4:"3x5@75",5:"3x4@77.5",6:"2x5@62.5",7:"4x3@77.5",8:"4x3@80",9:"3x3@82.5",10:"3x2@85",11:"2x3@70",12:"3x3@82.5",13:"1x1@R8|2x3@80",14:"1x1@R8|2x3@82.5",15:"1x1@R8|2x2@85",16:"1x1@R8|2x2@82.5",17:"1x1@R9",18:"3x3@80",19:"1x1@R8|2x2@85",20:"1x1@R8|2x2@87.5",21:"1x1@R8.5|2x1@87.5",22:"1x1@R8.5|2x1@85",23:"2x3@65",24:"1x1@R8.5|1x2@85",25:"1x1@R9",26:"1x1@R8"};
+const PSQ={1:"3x5@62.5",2:"3x5@65",3:"3x5@67.5",4:"4x4@70",5:"4x4@72.5",6:"2x5@55",7:"4x4@70",8:"4x4@72.5",9:"4x3@75",10:"3x3@75",11:"2x3@60",12:"4x3@75",13:"4x3@77.5",14:"4x3@77.5",15:"3x3@80",16:"3x3@75",17:"3x3@70",18:"3x3@77.5",19:"3x3@80",20:"3x2@82.5",21:"3x2@82.5",22:"3x2@80",23:"2x3@60",24:"3x2@80",25:"3x1@82.5",26:"2x1@80"};
+const BV={1:"4x8@62.5",2:"4x8@65",3:"4x7@67.5",4:"4x6@70",5:"4x6@72.5",6:"2x6@60",7:"4x5@70",8:"4x5@72.5",9:"4x4@75",10:"3x4@75",11:"2x4@60",12:"4x3@77.5",13:"4x3@80",14:"4x3@80",15:"3x3@82.5",16:"3x3@80",17:"3x3@72.5",18:"3x3@80",19:"3x3@82.5",20:"3x2@85",21:"3x2@85",22:"3x2@82.5",23:"2x3@65",24:"3x1@85",25:"3x1@87.5",26:"2x1@82.5"};
+const OV={7:"4x3@92.5",8:"4x3@97.5",9:"4x3@102.5",10:"3x3@102.5",12:"3x5@70",13:"3x5@72.5",14:"3x5@72.5",15:"3x4@75",16:"3x4@75",18:"3x4@75",19:"3x4@77.5",20:"3x3@80",21:"3x3@80",22:"2x3@77.5",24:"2x3@75",25:"2x2@75"};
+
+// Accessory lists by block: lo = lower & back day, up = upper day
+const ACC={
+  A:{lo:["Bulgarian split squat 3×10 per side","Lying leg curl 3×12","45° back extension 3×12, light","Pull-up or pulldown 4×8","Pallof press 3×12 per side"],
+     up:["Chest-supported row 4×10","Incline DB press 3×10","One-arm DB row 3×10 per side","Triceps pushdown 3×12","Face pull 3×15"]},
+  B:{lo:["Bulgarian split squat 3×8 per side","Lying leg curl 3×10","45° back extension 3×10, light","Pull-up or pulldown 4×8","Pallof press 3×10 per side"],
+     up:["Chest-supported row 4×8","Incline DB press 3×8","One-arm DB row 3×8 per side","Triceps pushdown 3×10","Face pull 3×15"]},
+  C:{lo:["Lying leg curl 3×10","45° back extension 3×10, light","Pulldown 3×8","Pallof press 3×10 per side"],
+     up:["Chest-supported row 3×8","One-arm DB row 3×8 per side","Triceps pushdown 3×10","Face pull 2×15"]},
+  D:{lo:["Lying leg curl 2×10","Pulldown 3×8","Pallof press 2×10 per side"],
+     up:["Chest-supported row 3×8","Triceps pushdown 2×10","Face pull 2×15"]},
+  E:{lo:["Pulldown 2×10"],up:["Chest-supported row 2×10","Face pull 2×15"]},
+  F:{lo:[],up:[]}
+};
+
+function parse(s){return s.split("|").map(p=>{const m=p.match(/^(\d+)x(\d+)@(R?)([\d.]+)$/);return{s:+m[1],r:+m[2],rpe:m[3]?+m[4]:null,pct:m[3]?null:+m[4]}})}
+
+function bvName(b){return b==="A"?["Close-grip bench",""]:b==="B"?["Spoto press","Pause 1″ off the chest"]:b==="E"?["Paused bench singles","On a “press” command"]:["Paused bench","Competition grip, 1–2 s pause"]}
+function ovName(b){return b==="B"?["Push press","% of strict OHP max"]:["Strict OHP","Volume, no leg drive"]}
+
+function weekPlan(w){
+  const b=blockOf(w),acc=ACC[b],s=add(START,7*(w-1));
+  if(w===27){return[
+    {t:"Day 1",when:add(s,0),focus:"Openers: squat + OHP",ex:[{n:"Squat",l:"sq",x:"1x1@91|2x2@75",sub:"Opener single"},{n:"Overhead press",l:"ohp",x:"1x1@91|2x2@75",sub:"Opener single"}],acc:[]},
+    {t:"Day 2",when:add(s,2),focus:"Opener: bench, light pulls",ex:[{n:"Bench press",l:"bp",x:"1x1@91|2x2@75",sub:"Opener single, paused"},{n:"Deadlift",l:"dl",x:"2x2@70",sub:"Fast, crisp pulls"}],acc:[]},
+    {t:"Day 3",when:add(s,4),focus:"Technique, no accessories",ex:[{n:"Squat",l:"sq",x:"2x2@70"},{n:"Bench press",l:"bp",x:"2x2@70",sub:"Paused"},{n:"Overhead press",l:"ohp",x:"2x2@65"}],acc:[],a:true}
+  ]}
+  const up=[];
+  const [bn,bs]=bvName(b);up.push({n:bn,l:"bp",x:BV[w],sub:bs});
+  if(b==="A")up.push({n:"Seated DB press",t:"3 × 10 @ RPE 8"});
+  else if(OV[w]){const [on,os]=ovName(b);up.push({n:on,l:"ohp",x:OV[w],sub:os})}
+  return[
+    {t:"Day 1",when:add(s,0),focus:"Squat + OHP",ex:[{n:"Squat",l:"sq",x:H[w]},{n:"Overhead press",l:"ohp",x:H[w]}],acc:[]},
+    {t:"Day 2",when:add(s,2),focus:"Bench + deadlift",ex:[{n:"Bench press",l:"bp",x:H[w],sub:"Paused, competition grip"},{n:"Deadlift",l:"dl",x:DL[w]}],acc:[]},
+    {t:"Day 3",when:add(s,4),focus:"Accessories: lower + back",ex:[{n:"Paused squat",l:"sq",x:PSQ[w],sub:"2 s pause in the hole"}],acc:acc.lo,a:true},
+    {t:"Day 4",when:add(s,5),focus:"Accessories: upper",ex:up,acc:acc.up,a:true}
+  ];
+}
+
+function setHTML(p,lift){
+  const e=st.e[lift];
+  if(p.rpe!=null){const est=r5(e*pctFor(p.r,p.rpe)/100);
+    return `<div class="set"><span class="rx">${p.s} × ${p.r} @ RPE ${p.rpe}</span> <span class="ld">≈${est}</span></div>`}
+  return `<div class="set"><span class="rx">${p.s} × ${p.r} @ ${p.pct}%</span> <span class="ld">${r5(e*p.pct/100)}</span></div>`;
+}
+function exHTML(x){
+  const sub=x.sub?`<small>${x.sub}</small>`:"";
+  const sets=x.t?`<div class="set"><span class="rx">${x.t}</span></div>`:parse(x.x).map(p=>setHTML(p,x.l)).join("");
+  return `<div class="ex main"><div class="n">${x.n}${sub}</div><div class="sets">${sets}</div></div>`;
+}
+
+function plates(total){let side=(total-45)/2,out=[];if(side<=0)return"bar only";for(const p of [45,25,10,5,2.5]){while(side>=p-1e-9){out.push(p);side-=p}}
+  const c={};out.forEach(p=>c[p]=(c[p]||0)+1);return Object.keys(c).map(Number).sort((a,b)=>b-a).map(p=>c[p]>1?`${c[p]}×${p}`:`${p}`).join(" + ")+" /side"}
+
+function testHTML(){
+  const order=["sq","bp","ohp","dl"];
+  const rows=order.map(k=>{const e=st.e[k],a=[r5(e*.91),r5(e*.96),r5(e*1.01)],pr=r5(st.best[k])+5;
+    return `<tr><td class="l">${LIFTS[k]}</td>${a.map(v=>`<td class="num">${v}${v>=pr?' <span class="pr">PR</span>':''}<span class="plates">${plates(v)}</span></td>`).join("")}<td class="num">${pr}</td></tr>`}).join("");
+  return `<div class="day"><div class="day-h"><h3>Tue Apr 27</h3><span class="when">40th birthday test · squat → bench → OHP → deadlift</span></div>
+  <div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr><th>Lift</th><th>Opener ~91%</th><th>Second ~96%</th><th>Third ~101%</th><th>PR line</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+  <p class="hint">Attempts are planned from your current maxes; update them after week 25. Plates assume a 45 lb bar and 45/25/10/5/2.5 plates. Adjust the second and third on the day based on how the opener moves.</p>`;
+}
+
+let sel=1;
+function curWeek(){const n=new Date(),d=Math.floor((new Date(n.getFullYear(),n.getMonth(),n.getDate())-START)/DAYMS);return Math.min(28,Math.max(1,Math.floor(d/7)+1))}
+
+function renderLifts(){
+  document.getElementById("lifts").innerHTML=Object.keys(LIFTS).map(k=>{
+    const need=((st.best[k]+5)/st.e[k]-1)*100;
+    return `<div class="lift"><span class="name">${LIFTS[k]}</span>
+      <label for="e_${k}">Est. 1RM (lb)</label><input id="e_${k}" data-k="${k}" data-f="e" type="number" inputmode="decimal" value="${st.e[k]}">
+      <label for="b_${k}">Lifetime best</label><input class="small" id="b_${k}" data-k="${k}" data-f="best" type="number" inputmode="decimal" value="${st.best[k]}">
+      <span class="gap">PR needs <span class="num">${need>0?"+"+need.toFixed(1)+"%":"nothing more"}</span></span></div>`}).join("");
+  document.querySelectorAll(".lift input").forEach(i=>i.addEventListener("change",ev=>{const v=parseFloat(ev.target.value);if(v>0){st[ev.target.dataset.f][ev.target.dataset.k]=v;save();renderLifts();renderWeek()}}));
+}
+
+function renderStrip(){
+  const now=curWeek();
+  document.getElementById("strip").innerHTML=Array.from({length:28},(_,i)=>{const w=i+1,b=blockOf(w);
+    return `<button class="seg${DELOAD.has(w)?" deload":""}${w===sel?" sel":""}${w===now?" now":""}" style="--c:var(${BLOCKS[b].c})" data-w="${w}" role="tab" aria-selected="${w===sel}" aria-label="Week ${w}, ${BLOCKS[b].name}"></button>`}).join("");
+  document.querySelectorAll(".seg").forEach(b=>b.addEventListener("click",()=>{sel=+b.dataset.w;renderAll()}));
+}
+function renderLegend(){
+  document.getElementById("legend").innerHTML=Object.entries(BLOCKS).map(([k,b])=>`<span><i style="--c:var(${b.c})"></i>${b.name}</span>`).join("")+`<span>Colors follow competition plates.</span>`;
+}
+
+function renderWeek(){
+  const b=blockOf(sel),B=BLOCKS[b],s=add(START,7*(sel-1));
+  document.getElementById("pill").textContent=B.name+(DELOAD.has(sel)?" · deload":sel===17?" · mock test":"");
+  document.getElementById("pill").style.setProperty("--c",`var(${B.c})`);
+  document.getElementById("wkNote").style.setProperty("--c",`var(${B.c})`);
+  document.getElementById("wkTitle").textContent=sel===28?"Test week":`Week ${sel}`;
+  document.getElementById("wkDates").textContent=sel===28?"Mon Apr 26 – Tue Apr 27, 2027":`${fmt(s)} – ${fmt(add(s,6))}`;
+  document.getElementById("wkNote").textContent=NOTES[sel]||B.desc;
+  document.getElementById("prev").disabled=sel===1;document.getElementById("next").disabled=sel===28;
+  const list=document.getElementById("days-list");
+  if(sel===28){list.innerHTML=testHTML();return}
+  list.innerHTML=weekPlan(sel).map(d=>`<div class="day${d.a?" accday":""}"><div class="day-h"><h3>${d.t} · ${d.focus}</h3><span class="when">${fmt(d.when)}</span></div>
+    ${d.ex.map(exHTML).join("")}
+    ${d.acc.length?`<div class="acc-h">Accessories${DELOAD.has(sel)?" · half sets":""}</div>`+d.acc.map(a=>`<div class="ex acc"><div class="n">${a}</div><div></div></div>`).join(""):""}</div>`).join("");
+}
+function renderAll(){renderStrip();renderWeek()}
+
+function renderDays(){const n=new Date(),t=new Date(n.getFullYear(),n.getMonth(),n.getDate()),d=Math.round((TEST-t)/DAYMS);
+  document.getElementById("days").textContent=d>0?d:d===0?"Today":"Done";
+  if(d===0)document.getElementById("daysTxt").textContent="is test day. Happy 40th.";
+  if(d<0)document.getElementById("daysTxt").textContent="Test day was April 27, 2027.";
+}
+
+function calc(){const w=parseFloat(cW.value),r=Math.min(8,Math.max(1,parseInt(cR.value)||1)),rpe=parseFloat(cRpe.value);
+  if(!(w>0)){cOut.textContent="—";return null}const e=Math.round(w/(pctFor(r,rpe)/100));cOut.textContent=e+" lb";return e}
+const cW=document.getElementById("cW"),cR=document.getElementById("cR"),cRpe=document.getElementById("cRpe"),cOut=document.getElementById("cOut"),cLift=document.getElementById("cLift");
+[cW,cR,cRpe].forEach(i=>i.addEventListener("input",calc));
+document.getElementById("cUse").addEventListener("click",()=>{const e=calc();if(e){st.e[cLift.value]=e;save();renderLifts();renderWeek();document.getElementById("cUse").textContent="Updated "+LIFTS[cLift.value];setTimeout(()=>document.getElementById("cUse").textContent="Use as max",1800)}});
+document.getElementById("prev").addEventListener("click",()=>{if(sel>1){sel--;renderAll()}});
+document.getElementById("next").addEventListener("click",()=>{if(sel<28){sel++;renderAll()}});
+
+sel=curWeek();
+renderDays();renderLifts();renderLegend();renderAll();calc();
+</script>
