@@ -95,6 +95,16 @@ input:focus-visible,button:focus-visible,select:focus-visible,summary:focus-visi
 .set{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.92rem;white-space:nowrap}
 .set .ld{font-weight:500;color:var(--fg);display:inline-block;min-width:4.2ch;text-align:right}
 .set .rx{color:var(--muted)}
+.set.live .ld{color:var(--accent)}
+.topin{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;background:var(--sunk);border-radius:4px;padding:8px 10px;margin-top:4px}
+.topin .eyebrow{flex-basis:100%}
+.topin .fld{display:inline-flex;align-items:center;gap:4px;font-size:.9rem;color:var(--muted)}
+.topin input,.topin select{font-family:var(--f-mono);font-size:1rem;padding:6px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--fg)}
+.topin input[data-f="w"]{width:5.5em}.topin input[data-f="r"]{width:3.2em}
+.topin .daye{font-size:.9rem}.topin .daye b{color:var(--accent);font-size:1.05rem}
+.topin .hint{flex-basis:100%;font-size:.8rem}
+.mini{font:600 .82rem var(--f-body);padding:6px 10px;border-radius:4px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer}
+@media (max-width:520px){.ex.main{grid-template-columns:minmax(0,1fr)}.ex.main .sets{align-items:flex-start;text-align:left}}
 .acc-h{padding:8px 14px 4px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--sunk)}
 
 /* attempts */
@@ -132,7 +142,7 @@ details ul{padding-left:20px;margin:0}
     <div class="eyebrow">Squat · Bench · Deadlift · Overhead press — 4 days a week</div>
     <h1>Road to 40</h1>
     <div class="countdown"><b id="days">—</b><span id="daysTxt">days to test day, Tuesday April 27, 2027</span></div>
-    <p class="lede">Three 8-week blocks: accumulation, top triples, top singles. Within each block, tonnage on the two main-lift days climbs every week, and each block ends with a deload. The last deload is four light days on the big four, then the test. Two main-lift days carry only the competition lifts; everything else lives on two back-to-back accessory days. Every load is calculated from the maxes below, rounded to 5 lb.</p>
+    <p class="lede">Three 8-week blocks: accumulation, top triples, top singles. Within each block, tonnage on the two main-lift days climbs every week, and each block ends with a deload. The last deload is four light days on the big four, then the test. Two main-lift days carry only the competition lifts; everything else lives on two back-to-back accessory days. Loads are in kilograms, rounded to 2.5.</p>
   </header>
 
   <section>
@@ -149,7 +159,7 @@ details ul{padding-left:20px;margin:0}
   </section>
 
   <section>
-    <div class="sec-head"><h2>Your numbers</h2><p class="hint">Estimated 1RM drives the loads. Lifetime best sets the PR line.</p></div>
+    <div class="sec-head"><h2>Your numbers</h2><p class="hint">The e1RM you walk in with plans the top sets. Lifetime best sets the PR line.</p></div>
     <div class="lifts" id="lifts"></div>
   </section>
 
@@ -174,13 +184,13 @@ details ul{padding-left:20px;margin:0}
   </section>
 
   <section>
-    <div class="sec-head"><h2>e1RM calculator</h2><p class="hint">Enter a top set to update a max (RTS-style RPE table).</p></div>
+    <div class="sec-head"><h2>e1RM calculator</h2><p class="hint">Epley with reps to failure, the same formula as your lift log.</p></div>
     <div class="calc">
       <label>Lift<select id="cLift"><option value="sq">Squat</option><option value="bp">Bench</option><option value="dl">Deadlift</option><option value="ohp">OHP</option></select></label>
-      <label>Weight (lb)<input id="cW" type="number" inputmode="decimal" value="365"></label>
-      <label>Reps<input id="cR" type="number" inputmode="numeric" min="1" max="8" value="3"></label>
-      <label>RPE<select id="cRpe"><option>6</option><option>6.5</option><option>7</option><option>7.5</option><option selected>8</option><option>8.5</option><option>9</option><option>9.5</option><option>10</option></select></label>
-      <div class="out"><div><span class="eyebrow">Estimated 1RM</span><br><b class="num" id="cOut">—</b></div><button class="btn" id="cUse">Use as max</button></div>
+      <label>Weight (kg)<input id="cW" type="number" inputmode="decimal" step="2.5" value="115"></label>
+      <label>Reps<input id="cR" type="number" inputmode="numeric" min="1" max="12" value="5"></label>
+      <label>RPE<select id="cRpe"><option>6</option><option>6.5</option><option>7</option><option selected>7.5</option><option>8</option><option>8.5</option><option>9</option><option>9.5</option><option>10</option></select></label>
+      <div class="out"><div><span class="eyebrow">Estimated 1RM</span><br><b class="num" id="cOut">—</b></div><button class="btn" id="cUse">Use as e1RM</button></div>
     </div>
   </section>
 
@@ -211,10 +221,16 @@ details ul{padding-left:20px;margin:0}
         <li>The McGill work stays in the warm-up even when you’re short on time. It’s the cheapest insurance in the program.</li>
       </ul>
     </div></details>
-    <details><summary>Percentages, RPE and updating maxes</summary><div class="body">
-      <p>Percentages are of your estimated 1RM. Top singles are prescribed by RPE; the load shown next to them is what that RPE should look like if your max is accurate.</p>
-      <p>If a top single lands a full RPE harder than prescribed, take 5% off the back-off sets that day. If it lands a full RPE easier, add 2.5%.</p>
-      <p>Update your maxes with the calculator after week 1 (calibration sets) and at the last hard week of each block (weeks 8, 17 and 26). Week 26’s heaviest singles set your test-day attempts.</p>
+    <details open><summary>Running a session</summary><div class="body">
+      <ol>
+        <li>Walk in with the e1RM you believe today (the numbers at the top).</li>
+        <li>The top set’s load is planned from it for the target reps and RPE, shown in grey in the box.</li>
+        <li>Do the top set and enter the weight, reps and the RPE it actually took.</li>
+        <li>The page calculates the day’s e1RM from that set.</li>
+        <li>Back-offs are percentages of the day’s e1RM, shown as the two loadable weights either side when it doesn’t land on 2.5 kg. Pick the lower or higher by feel.</li>
+      </ol>
+      <p>Example: last bench was 115 × 5 @ 7.5, e1RM 143.8. Next goal is 5 @ 8, which plans to 116.6, so load 117.5. It takes RPE 8.5: 117.5 × 5 @ 8.5 is a day e1RM of 143.0, and 75% is 107.2, so 105 or 107.5.</p>
+      <p>Tap “Use as e1RM” to carry a day’s number into the next session. Leave it alone if the day was off for reasons that won’t repeat. Back-offs on deload weeks and the accessory-day variations use the e1RM at the top of the page.</p>
     </div></details>
     <details><summary>Cycling alongside</summary><div class="body">
       <p>Two Zone 2 rides and one interval session a week: Zone 2 on Tuesday and Sunday, intervals on Thursday. Thursday is the only day that isn’t within 24 hours of Day 1 or Day 2, so keep intervals there if the week shifts.</p>
@@ -229,51 +245,55 @@ details ul{padding-left:20px;margin:0}
 
 <script>
 const LIFTS={sq:"Squat",bp:"Bench",dl:"Deadlift",ohp:"OHP"};
-const DEF={e:{sq:405,bp:315,dl:420,ohp:205},best:{sq:445,bp:365,dl:465,ohp:235}};
+// Starting e1RMs from the lift log (Oct 2026); lifetime bests converted from the earlier pound figures
+const DEF={e:{sq:151.7,bp:143.8,dl:172.7,ohp:90},best:{sq:202.5,bp:165,dl:210,ohp:107.5},log:{}};
 let st=JSON.parse(JSON.stringify(DEF));
-try{const s=JSON.parse(localStorage.getItem("road427")||"null");if(s&&s.e&&s.best)st=s}catch(e){}
-function save(){try{localStorage.setItem("road427",JSON.stringify(st))}catch(e){}}
+try{const s=JSON.parse(localStorage.getItem("road40kg")||"null");if(s&&s.e&&s.best){st=s;st.log=st.log||{}}}catch(e){}
+function save(){try{localStorage.setItem("road40kg",JSON.stringify(st))}catch(e){}}
 
 const START=new Date(2026,9,19); // Mon Oct 19 2026
 const TEST=new Date(2027,3,27);
 const DAYMS=864e5;
-const r5=x=>Math.round(x/5)*5;
+const r25=x=>Math.round(x/2.5)*2.5, f25=x=>Math.floor(x/2.5+1e-9)*2.5, c25=x=>Math.ceil(x/2.5-1e-9)*2.5;
+const f1=x=>String(Math.round(x*10)/10);
 const fmt=d=>d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
 const add=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
 
-// RTS-style %1RM by reps-to-failure (x = reps + 10 - RPE)
-const BASE=[100,95.5,92.2,89.2,86.3,83.7,81.1,78.6,76.2,73.9,70.7,68.0];
-function pctFor(reps,rpe){const x=reps+10-rpe,v=i=>BASE[Math.min(Math.max(i,1),12)-1],lo=Math.floor(x),hi=Math.ceil(x);return v(lo)+(v(hi)-v(lo))*(x-lo)}
+// Epley with reps to failure (reps + 10 − RPE), the same formula as the lift log
+const e1=(w,r,rpe)=>w*(1+(r+10-rpe)/30);
+const loadFor=(e,r,rpe)=>e/(1+(r+10-rpe)/30);
+const pctFor=(r,rpe)=>100/(1+(r+10-rpe)/30);
+const RPES=[6,6.5,7,7.5,8,8.5,9,9.5,10];
 
 const BLOCKS={
-  A:{name:"Accumulation",c:"--p-a",desc:"Sets of 5–6 at 67.5–75%. Sets and load climb every week, so main-day tonnage rises about 65% across the block."},
-  B:{name:"Strength I",c:"--p-b",desc:"A top triple, then back-off sets of 5. Each week adds a back-off set or 2.5%, so main-day tonnage rises every week."},
-  C:{name:"Strength II",c:"--p-c",desc:"A top single, then back-off triples. Each week adds a back-off set or 2.5%, so main-day tonnage rises every week."},
+  A:{name:"Accumulation",c:"--p-a",desc:"A top set of 6 by RPE (7 rising to 8.5), then back-off sixes at 70–75% of the day’s e1RM. Back-off sets climb from 3 to 6, so main-day tonnage rises every week."},
+  B:{name:"Strength I",c:"--p-b",desc:"A top triple by RPE, then back-off fives at 75–77.5% of the day’s e1RM. Each week adds a back-off set or 2.5%, so main-day tonnage rises every week."},
+  C:{name:"Strength II",c:"--p-c",desc:"A top single by RPE, then back-off triples at 80–82.5% of the day’s e1RM. Each week adds a back-off set or 2.5%, so main-day tonnage rises every week."},
   T:{name:"Test",c:"--p-t",desc:""}
 };
 function blockOf(w){return w<=9?"A":w<=18?"B":w<=27?"C":"T"}
 const DELOAD=new Set([9,18,27]);
 const NOTES={
-  1:"Calibration week. On Days 1 and 2, work up to a top set of 5 at RPE 8 on squat, bench and OHP (deadlift: 5 at RPE 7). Put each one in the calculator below, update your maxes, and the rest of the program re-scales.",
+  1:"Accumulation starts. Load the top set from your e1RM, record the RPE it actually took, and run the back-offs off the day’s e1RM.",
   6:"Thanksgiving week. Run it as written if you can; drop the upper accessory day if you can’t.",
-  8:"Last hard week of Accumulation. Update maxes from your heaviest sets.",
+  8:"Last hard week of Accumulation.",
   9:"Deload. Accessories at half the listed sets.",
   10:"Strength I starts: top triple, then back-off fives. Christmas is Friday, so move the lower accessory day to Thursday or skip it.",
   11:"New Year’s Day is Friday. Move the lower accessory day to Thursday or Saturday.",
-  17:"Last hard week of Strength I. Update maxes from the top triples.",
+  17:"Last hard week of Strength I.",
   18:"Deload. Accessories at half the listed sets.",
   19:"Strength II starts: top single, then back-off triples.",
-  26:"Last hard week of the cycle and the heaviest top singles. Update maxes from these; they set your test-day attempts. Last heavy deadlift, 15 days out.",
+  26:"Last hard week of the cycle and the heaviest top singles. Carry their e1RMs forward; they set your test-day attempts. Last heavy deadlift, 15 days out.",
   27:"Final deload. Four light days on the big four and no accessories. Openers on Monday and Wednesday, then two easy technique days. Rest Sunday and Monday. Zone 2 only, 45 minutes or less.",
   28:"Test day. Squat, bench, OHP, deadlift."
 };
 
 // Squat, bench and OHP on Days 1–2
-const H={1:"1x5@R8|3x6@67.5",2:"4x6@67.5",3:"4x6@70",4:"5x6@70",5:"5x6@72.5",6:"6x6@70",7:"6x6@72.5",8:"6x6@75",9:"3x5@60",
+const H={1:"1x6@R7|3x6@70",2:"1x6@R7|3x6@72.5",3:"1x6@R7.5|4x6@70",4:"1x6@R7.5|4x6@72.5",5:"1x6@R8|5x6@70",6:"1x6@R8|5x6@72.5",7:"1x6@R8.5|5x6@75",8:"1x6@R8.5|6x6@72.5",9:"3x5@60",
   10:"1x3@R8|3x5@75",11:"1x3@R8|4x5@75",12:"1x3@R8|4x5@77.5",13:"1x3@R8.5|5x5@75",14:"1x3@R8.5|5x5@77.5",15:"1x3@R9|6x5@75",16:"1x3@R9|6x5@77.5",17:"1x3@R9|7x5@75",18:"2x3@70",
   19:"1x1@R8|4x3@80",20:"1x1@R8|5x3@80",21:"1x1@R8.5|5x3@82.5",22:"1x1@R8.5|6x3@80",23:"1x1@R8.5|6x3@82.5",24:"1x1@R9|7x3@80",25:"1x1@R9|7x3@82.5",26:"1x1@R9|8x3@80"};
 // Deadlift on Day 2, capped at RPE 8.5
-const DL={1:"1x5@R7|2x5@67.5",2:"3x5@67.5",3:"3x5@70",4:"4x5@67.5",5:"4x5@70",6:"4x5@72.5",7:"5x5@70",8:"5x5@72.5",9:"2x5@60",
+const DL={1:"1x5@R7|2x5@70",2:"1x5@R7|2x5@72.5",3:"1x5@R7.5|3x5@70",4:"1x5@R7.5|3x5@72.5",5:"1x5@R8|3x5@75",6:"1x5@R8|4x5@72.5",7:"1x5@R8|4x5@75",8:"1x5@R8.5|5x5@72.5",9:"2x5@60",
   10:"1x3@R7.5|2x5@72.5",11:"1x3@R8|3x5@72.5",12:"1x3@R8|3x5@75",13:"1x3@R8|4x5@72.5",14:"1x3@R8|4x5@75",15:"1x3@R8.5|4x5@77.5",16:"1x3@R8.5|5x5@75",17:"1x3@R8.5|5x5@77.5",18:"2x3@70",
   19:"1x1@R8|3x3@77.5",20:"1x1@R8|3x3@80",21:"1x1@R8|4x3@77.5",22:"1x1@R8.5|4x3@80",23:"1x1@R8.5|5x3@77.5",24:"1x1@R8.5|5x3@80",25:"1x1@R8.5|5x3@82.5",26:"1x1@R8.5|6x3@80"};
 // Paused squat on Day 3 (% of squat max)
@@ -310,39 +330,49 @@ function weekPlan(w){
   if(b==="A")up.push({n:"Seated DB press",t:(w===9?"2":w<=3?"3":"4")+" × 10 @ RPE 8"});
   else if(OV[w])up.push({n:"Strict OHP",l:"ohp",x:OV[w],sub:"Volume, no leg drive"});
   return[
-    {t:"Day 1",when:add(s,0),focus:"Squat + OHP",ex:[{n:"Squat",l:"sq",x:H[w]},{n:"Overhead press",l:"ohp",x:H[w]}],acc:[]},
-    {t:"Day 2",when:add(s,2),focus:"Bench + deadlift",ex:[{n:"Bench press",l:"bp",x:H[w],sub:"Paused, competition grip"},{n:"Deadlift",l:"dl",x:DL[w]}],acc:[]},
+    {t:"Day 1",when:add(s,0),focus:"Squat + OHP",ex:[{n:"Squat",l:"sq",x:H[w],log:1},{n:"Overhead press",l:"ohp",x:H[w],log:1}],acc:[]},
+    {t:"Day 2",when:add(s,2),focus:"Bench + deadlift",ex:[{n:"Bench press",l:"bp",x:H[w],sub:"Paused, competition grip",log:1},{n:"Deadlift",l:"dl",x:DL[w],log:1}],acc:[]},
     {t:"Day 3",when:add(s,4),focus:"Accessories: lower + back",ex:lo,acc:acc.lo,a:true},
     {t:"Day 4",when:add(s,5),focus:"Accessories: upper",ex:up,acc:acc.up,a:true}
   ];
 }
-// Weekly tonnage on Days 1–2 only (accessory days not counted), from the current maxes
+// Weekly tonnage on Days 1–2 only (accessory days not counted), planned from the current e1RMs
 function tonOf(w){
   if(w===28)return ["sq","bp","ohp","dl"].reduce((t,k)=>t+st.e[k]*(.91+.96+1.01),0);
   return weekPlan(w).filter(d=>d.t==="Day 1"||d.t==="Day 2").reduce((t,d)=>t+d.ex.reduce((u,x)=>u+parse(x.x).reduce((v,p)=>v+p.s*p.r*st.e[x.l]*(p.rpe!=null?pctFor(p.r,p.rpe):p.pct)/100,0),0),0)}
-const lbs=n=>Math.round(n/100)*100;
-function setHTML(p,lift){
-  const e=st.e[lift];
-  if(p.rpe!=null){const est=r5(e*pctFor(p.r,p.rpe)/100);
-    return `<div class="set"><span class="rx">${p.s} × ${p.r} @ RPE ${p.rpe}</span> <span class="ld">≈${est}</span></div>`}
-  return `<div class="set"><span class="rx">${p.s} × ${p.r} @ ${p.pct}%</span> <span class="ld">${r5(e*p.pct/100)}</span></div>`;
+const kgs=n=>Math.round(n/10)*10;
+
+function setHTML(p,lift,dayE){
+  if(p.rpe!=null)return `<div class="set"><span class="rx">${p.s} × ${p.r} @ RPE ${p.rpe}</span> <span class="ld">≈${r25(loadFor(st.e[lift],p.r,p.rpe))}</span></div>`;
+  const x=(dayE||st.e[lift])*p.pct/100,lo=f25(x),hi=c25(x);
+  return `<div class="set${dayE?" live":""}" title="${f1(x)} kg"><span class="rx">${p.s} × ${p.r} @ ${p.pct}%</span> <span class="ld">${lo===hi?lo:lo+" / "+hi}</span></div>`;
 }
-function exHTML(x){
+function exHTML(x,w){
   const sub=x.sub?`<small>${x.sub}</small>`:"";
-  const sets=x.t?`<div class="set"><span class="rx">${x.t}</span></div>`:parse(x.x).map(p=>setHTML(p,x.l)).join("");
-  return `<div class="ex main"><div class="n">${x.n}${sub}</div><div class="sets">${sets}</div></div>`;
+  if(x.t)return `<div class="ex main"><div class="n">${x.n}${sub}</div><div class="sets"><div class="set"><span class="rx">${x.t}</span></div></div></div>`;
+  const parts=parse(x.x);let dayE=null,inp="";
+  if(x.log&&parts[0].rpe!=null){
+    const k=w+"-"+x.l,L=st.log[k]||{},p=parts[0],plan=r25(loadFor(st.e[x.l],p.r,p.rpe));
+    if(L.w>0&&L.rpe)dayE=e1(L.w,L.r||p.r,L.rpe);
+    inp=`<div class="topin" data-k="${k}"><span class="eyebrow">Your top set</span>
+      <span class="fld"><input type="number" inputmode="decimal" step="2.5" data-f="w" id="w_${k}" placeholder="${plan}" value="${L.w??""}" aria-label="Top set kg"> kg ×</span>
+      <span class="fld"><input type="number" inputmode="numeric" data-f="r" id="r_${k}" value="${L.r??p.r}" aria-label="Reps"> @</span>
+      <select data-f="rpe" id="p_${k}" aria-label="RPE"><option value="">RPE</option>${RPES.map(v=>`<option${L.rpe==v?" selected":""}>${v}</option>`).join("")}</select>
+      ${dayE?`<span class="daye">Day e1RM <b class="num">${f1(dayE)}</b></span><button class="mini" data-use="${x.l}" data-e="${f1(dayE)}">Use as e1RM</button>`:`<span class="hint">Back-offs use today’s e1RM once you enter the top set.</span>`}
+    </div>`}
+  return `<div class="ex main"><div class="n">${x.n}${sub}</div><div class="sets">${parts.map((p,i)=>setHTML(p,x.l,i?dayE:null)).join("")}</div>${inp}</div>`;
 }
 
-function plates(total){let side=(total-45)/2,out=[];if(side<=0)return"bar only";for(const p of [45,25,10,5,2.5]){while(side>=p-1e-9){out.push(p);side-=p}}
+function plates(total){let side=(total-20)/2,out=[];if(side<=0)return"bar only";for(const p of [25,20,15,10,5,2.5,1.25]){while(side>=p-1e-9){out.push(p);side-=p}}
   const c={};out.forEach(p=>c[p]=(c[p]||0)+1);return Object.keys(c).map(Number).sort((a,b)=>b-a).map(p=>c[p]>1?`${c[p]}×${p}`:`${p}`).join(" + ")+" /side"}
 
 function testHTML(){
   const order=["sq","bp","ohp","dl"];
-  const rows=order.map(k=>{const e=st.e[k],a=[r5(e*.91),r5(e*.96),r5(e*1.01)],pr=r5(st.best[k])+5;
+  const rows=order.map(k=>{const e=st.e[k],a=[r25(e*.91),r25(e*.96),r25(e*1.01)],pr=r25(st.best[k])+2.5;
     return `<tr><td class="l">${LIFTS[k]}</td>${a.map(v=>`<td class="num">${v}${v>=pr?' <span class="pr">PR</span>':''}<span class="plates">${plates(v)}</span></td>`).join("")}<td class="num">${pr}</td></tr>`}).join("");
   return `<div class="day"><div class="day-h"><h3>Tue Apr 27</h3><span class="when">40th birthday test · squat → bench → OHP → deadlift</span></div>
   <div class="tbl-wrap" style="border:0;border-radius:0"><table><thead><tr><th>Lift</th><th>Opener ~91%</th><th>Second ~96%</th><th>Third ~101%</th><th>PR line</th></tr></thead><tbody>${rows}</tbody></table></div></div>
-  <p class="hint">Attempts are planned from your current maxes; update them after week 25. Plates assume a 45 lb bar and 45/25/10/5/2.5 plates. Adjust the second and third on the day based on how the opener moves.</p>`;
+  <p class="hint">Attempts are planned from your current e1RMs in kg; set those from week 26’s top singles. Plates assume a 20 kg bar and 25/20/15/10/5/2.5/1.25 plates. Adjust the second and third on the day based on how the opener moves.</p>`;
 }
 
 let sel=1;
@@ -350,10 +380,10 @@ function curWeek(){const n=new Date(),d=Math.floor((new Date(n.getFullYear(),n.g
 
 function renderLifts(){
   document.getElementById("lifts").innerHTML=Object.keys(LIFTS).map(k=>{
-    const need=((st.best[k]+5)/st.e[k]-1)*100;
+    const need=((st.best[k]+2.5)/st.e[k]-1)*100;
     return `<div class="lift"><span class="name">${LIFTS[k]}</span>
-      <label for="e_${k}">Est. 1RM (lb)</label><input id="e_${k}" data-k="${k}" data-f="e" type="number" inputmode="decimal" value="${st.e[k]}">
-      <label for="b_${k}">Lifetime best</label><input class="small" id="b_${k}" data-k="${k}" data-f="best" type="number" inputmode="decimal" value="${st.best[k]}">
+      <label for="e_${k}">Est. 1RM (kg)</label><input id="e_${k}" data-k="${k}" data-f="e" type="number" step="0.5" inputmode="decimal" value="${f1(st.e[k])}">
+      <label for="b_${k}">Lifetime best</label><input class="small" id="b_${k}" data-k="${k}" data-f="best" type="number" step="2.5" inputmode="decimal" value="${st.best[k]}">
       <span class="gap">PR needs <span class="num">${need>0?"+"+need.toFixed(1)+"%":"nothing more"}</span></span></div>`}).join("");
   document.querySelectorAll(".lift input").forEach(i=>i.addEventListener("change",ev=>{const v=parseFloat(ev.target.value);if(v>0){st[ev.target.dataset.f][ev.target.dataset.k]=v;save();renderLifts();renderAll()}}));
 }
@@ -361,7 +391,7 @@ function renderLifts(){
 function renderStrip(){
   const now=curWeek(),T=Array.from({length:28},(_,i)=>tonOf(i+1)),TMAX=Math.max(...T);
   document.getElementById("strip").innerHTML=Array.from({length:28},(_,i)=>{const w=i+1,b=blockOf(w);
-    return `<button class="seg${DELOAD.has(w)?" deload":""}${w===sel?" sel":""}${w===now?" now":""}" style="--c:var(${BLOCKS[b].c});--h:${Math.round(8+56*T[i]/TMAX)}px" data-w="${w}" role="tab" aria-selected="${w===sel}" aria-label="Week ${w}, ${BLOCKS[b].name}, ${lbs(T[i]).toLocaleString()} lb"></button>`}).join("");
+    return `<button class="seg${DELOAD.has(w)?" deload":""}${w===sel?" sel":""}${w===now?" now":""}" style="--c:var(${BLOCKS[b].c});--h:${Math.round(8+56*T[i]/TMAX)}px" data-w="${w}" role="tab" aria-selected="${w===sel}" aria-label="Week ${w}, ${BLOCKS[b].name}, ${kgs(T[i]).toLocaleString()} kg"></button>`}).join("");
   document.querySelectorAll(".seg").forEach(b=>b.addEventListener("click",()=>{sel=+b.dataset.w;renderAll()}));
 }
 function renderLegend(){
@@ -374,14 +404,18 @@ function renderWeek(){
   document.getElementById("pill").style.setProperty("--c",`var(${B.c})`);
   document.getElementById("wkNote").style.setProperty("--c",`var(${B.c})`);
   document.getElementById("wkTitle").textContent=sel===28?"Test week":`Week ${sel}`;
-  document.getElementById("wkDates").textContent=sel===28?"Mon Apr 26 – Tue Apr 27, 2027":`${fmt(s)} – ${fmt(add(s,6))} · Days 1–2 tonnage ${lbs(tonOf(sel)).toLocaleString()} lb`;
+  document.getElementById("wkDates").textContent=sel===28?"Mon Apr 26 – Tue Apr 27, 2027":`${fmt(s)} – ${fmt(add(s,6))} · Days 1–2 tonnage about ${kgs(tonOf(sel)).toLocaleString()} kg`;
   document.getElementById("wkNote").textContent=NOTES[sel]||B.desc;
   document.getElementById("prev").disabled=sel===1;document.getElementById("next").disabled=sel===28;
   const list=document.getElementById("days-list");
   if(sel===28){list.innerHTML=testHTML();return}
   list.innerHTML=weekPlan(sel).map(d=>`<div class="day${d.a?" accday":""}"><div class="day-h"><h3>${d.t} · ${d.focus}</h3><span class="when">${fmt(d.when)}</span></div>
-    ${d.ex.map(exHTML).join("")}
+    ${d.ex.map(x=>exHTML(x,sel)).join("")}
     ${d.acc.length?`<div class="acc-h">Accessories${DELOAD.has(sel)?" · half sets":""}</div>`+d.acc.map(a=>`<div class="ex acc"><div class="n">${a}</div><div></div></div>`).join(""):""}</div>`).join("");
+  list.querySelectorAll(".topin input,.topin select").forEach(el=>el.addEventListener("change",ev=>{
+    const k=ev.target.closest(".topin").dataset.k,L=st.log[k]||(st.log[k]={}),f=ev.target.dataset.f,v=parseFloat(ev.target.value);
+    if(isNaN(v))delete L[f];else L[f]=v;save();renderWeek()}));
+  list.querySelectorAll("[data-use]").forEach(bt=>bt.addEventListener("click",()=>{st.e[bt.dataset.use]=parseFloat(bt.dataset.e);save();renderLifts();renderAll()}));
 }
 function renderAll(){renderStrip();renderWeek()}
 
@@ -391,11 +425,11 @@ function renderDays(){const n=new Date(),t=new Date(n.getFullYear(),n.getMonth()
   if(d<0)document.getElementById("daysTxt").textContent="Test day was April 27, 2027.";
 }
 
-function calc(){const w=parseFloat(cW.value),r=Math.min(8,Math.max(1,parseInt(cR.value)||1)),rpe=parseFloat(cRpe.value);
-  if(!(w>0)){cOut.textContent="—";return null}const e=Math.round(w/(pctFor(r,rpe)/100));cOut.textContent=e+" lb";return e}
+function calc(){const w=parseFloat(cW.value),r=Math.min(12,Math.max(1,parseInt(cR.value)||1)),rpe=parseFloat(cRpe.value);
+  if(!(w>0)){cOut.textContent="—";return null}const e=Math.round(e1(w,r,rpe)*10)/10;cOut.textContent=e+" kg";return e}
 const cW=document.getElementById("cW"),cR=document.getElementById("cR"),cRpe=document.getElementById("cRpe"),cOut=document.getElementById("cOut"),cLift=document.getElementById("cLift");
 [cW,cR,cRpe].forEach(i=>i.addEventListener("input",calc));
-document.getElementById("cUse").addEventListener("click",()=>{const e=calc();if(e){st.e[cLift.value]=e;save();renderLifts();renderAll();document.getElementById("cUse").textContent="Updated "+LIFTS[cLift.value];setTimeout(()=>document.getElementById("cUse").textContent="Use as max",1800)}});
+document.getElementById("cUse").addEventListener("click",()=>{const e=calc();if(e){st.e[cLift.value]=e;save();renderLifts();renderAll();document.getElementById("cUse").textContent="Updated "+LIFTS[cLift.value];setTimeout(()=>document.getElementById("cUse").textContent="Use as e1RM",1800)}});
 document.getElementById("prev").addEventListener("click",()=>{if(sel>1){sel--;renderAll()}});
 document.getElementById("next").addEventListener("click",()=>{if(sel<28){sel++;renderAll()}});
 
