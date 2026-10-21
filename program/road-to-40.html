@@ -197,28 +197,28 @@ details ul{padding-left:20px;margin:0}
   <section>
     <h2>How to run it</h2>
     <details open><summary>The week</summary><div class="body">
-      <p>Days 1 and 2 are the main-lift days: the two competition lifts, warm-up, and nothing else. They should fit in about an hour. Days 3 and 4 are the accessory days, done back to back. Each one leads with a variation of a main lift (paused squat on the lower day; a bench variation and overhead volume on the upper day), then the accessory list. Accessory days don’t count toward the tonnage progression. The accessory list stays the same all cycle; deload weeks use half sets, and the final deload has none.</p>
+      <p>Days 1 and 2 are the main-lift days: the two competition lifts, warm-up, and nothing else. They should fit in about an hour. Days 3 and 4 are the accessory days, done back to back. Saturday leads with a squat variation and a deadlift variation; Sunday with a bench variation (pin OHP in Strength II). Each phase has its own variations, loaded by RPE, then a pull, a shoulder exercise and a few extras. Accessory days don’t count toward the tonnage progression. The accessory list stays the same all cycle; deload weeks use half sets, and the final deload has none.</p>
       <ul>
         <li>Keep at least 48 hours between Day 1 and Day 2.</li>
-        <li>Do the lower accessory day first. It sits 2 days after deadlift and 3 days before squat, which keeps the paused squat away from both heavy days.</li>
+        <li>Do the lower accessory day first. It sits 2 days after deadlift and 3 days before squat, which keeps the squat and deadlift variations away from both heavy days.</li>
         <li>The upper day sits two days before Day 1, plenty for overhead press to recover.</li>
         <li>Zone 2 after either accessory day is fine if you want the extra ride.</li>
-        <li>If a week gets squeezed, drop the upper accessory day first, then the accessory list on the lower day. Keep the paused squat if you can.</li>
+        <li>If a week gets squeezed, drop the upper accessory day first, then the accessory list on the lower day. Keep the squat variation if you can.</li>
       </ul>
     </div></details>
     <details><summary>Warm-up</summary><div class="body">
       <p>Main-lift days (about 12 minutes): five minutes easy on the bike, then the McGill big three — curl-up, side plank, bird dog — in short holds of about 10 seconds, descending reps (for example 5-3-1 per side). Add hip airplanes or 90/90 switches, 5 per side.</p>
       <p>Ramp the first main lift: bar ×10, 40% ×5, 60% ×3, 75% ×2, 85% ×1 before anything heavier. The second main lift needs only two or three ramp sets.</p>
-      <p>Accessory days: bike and the McGill big three, then two or three ramp sets for the lead variation.</p>
+      <p>Accessory days: bike and the McGill big three, then two or three ramp sets for each variation.</p>
     </div></details>
     <details><summary>Protecting your back</summary><div class="body">
       <ul>
         <li>Squat and deadlift are never heavy on the same day. All loaded hinging happens on Day 2, so your erectors get 4–5 days between hard exposures.</li>
-        <li>The lower accessory day has no loaded hinge. Back extensions there are light and stop well short of failure.</li>
+        <li>Saturday’s deadlift variation (RDL, pause deadlift, rack pull from just below the knee) is 2–3 sets, capped at RPE 7, done after the squat variation.</li>
         <li>Belt on every set at or above 80%.</li>
         <li>Deadlift is capped at RPE 8.5 until test day. Stop any set when the brace leaks; that rep doesn’t count anyway.</li>
         <li>No heavy hinging in the first hour after waking.</li>
-        <li>If your back feels off during warm-up, swap that day’s deadlift for block pulls just below the knee or trap bar at the same RPE, and drop the back extensions that week. If it spasms, run that week as a deload rather than training through it.</li>
+        <li>If your back feels off during warm-up, swap that day’s deadlift for block pulls just below the knee or trap bar at the same RPE, and drop Saturday’s deadlift variation that week. If it spasms, run that week as a deload rather than training through it.</li>
         <li>The McGill work stays in the warm-up even when you’re short on time. It’s the cheapest insurance in the program.</li>
       </ul>
     </div></details>
@@ -231,7 +231,7 @@ details ul{padding-left:20px;margin:0}
         <li>Back-offs are percentages of the day’s e1RM, shown as the two loadable weights either side when it doesn’t land on 2.5 kg. Pick the lower or higher by feel.</li>
       </ol>
       <p>Example: last bench was 115 × 5 @ 7.5, e1RM 143.8. Next goal is 5 @ 8, which plans to 116.6, so load 117.5. It takes RPE 8.5: 117.5 × 5 @ 8.5 is a day e1RM of 143.0, and 75% is 107.2, so 105 or 107.5.</p>
-      <p>Tap “Use as e1RM” to carry a day’s number into the next session. Leave it alone if the day was off for reasons that won’t repeat. Back-offs on deload weeks and the accessory-day variations use the e1RM at the top of the page.</p>
+      <p>Tap “Use as e1RM” to carry a day’s number into the next session. Leave it alone if the day was off for reasons that won’t repeat. Back-offs on deload weeks use the e1RM at the top of the page. Accessory-day variations are prescribed by RPE only; choose the weight on the day.</p>
     </div></details>
     <details><summary>Cycling alongside</summary><div class="body">
       <p>Cardio takes Monday, Wednesday and Friday: Zone 2 on Monday and Wednesday, intervals on Friday. Monday and Wednesday each fall the day before a main-lift day, so they stay easy; Friday is the only cardio day not within 24 hours of Day 1 or Day 2. Optional Zone 2 after the Saturday and Sunday accessory sessions.</p>
@@ -297,26 +297,25 @@ const H={1:"1x6@R7|3x6@70",2:"1x6@R7|3x6@72.5",3:"1x6@R7.5|4x6@70",4:"1x6@R7.5|4
 const DL={1:"1x5@R7|2x5@70",2:"1x5@R7|2x5@72.5",3:"1x5@R7.5|3x5@70",4:"1x5@R7.5|3x5@72.5",5:"1x5@R8|3x5@75",6:"1x5@R8|4x5@72.5",7:"1x5@R8|4x5@75",8:"1x5@R8.5|5x5@72.5",9:"2x5@60",
   10:"1x3@R7.5|2x5@72.5",11:"1x3@R8|3x5@72.5",12:"1x3@R8|3x5@75",13:"1x3@R8|4x5@72.5",14:"1x3@R8|4x5@75",15:"1x3@R8.5|4x5@77.5",16:"1x3@R8.5|5x5@75",17:"1x3@R8.5|5x5@77.5",18:"2x3@70",
   19:"1x1@R8|3x3@77.5",20:"1x1@R8|3x3@80",21:"1x1@R8|4x3@77.5",22:"1x1@R8.5|4x3@80",23:"1x1@R8.5|5x3@77.5",24:"1x1@R8.5|5x3@80",25:"1x1@R8.5|5x3@82.5",26:"1x1@R8.5|6x3@80"};
-// Paused squat on Day 3 (% of squat max)
-const PSQ={1:"3x6@60",2:"3x6@62.5",3:"3x6@65",4:"4x6@62.5",5:"4x6@65",6:"4x5@67.5",7:"4x5@70",8:"4x5@70",9:"2x5@55",
-  10:"3x4@70",11:"3x4@72.5",12:"4x4@70",13:"4x4@72.5",14:"5x4@70",15:"5x4@72.5",16:"5x4@75",17:"5x4@75",18:"2x3@60",
-  19:"4x3@75",20:"4x3@77.5",21:"5x3@75",22:"5x3@77.5",23:"6x3@75",24:"6x3@77.5",25:"6x3@77.5",26:"6x3@77.5"};
-// Bench variation on Day 4 (% of bench max)
-const BV={1:"3x8@62.5",2:"3x8@65",3:"3x8@67.5",4:"4x8@65",5:"4x8@67.5",6:"4x6@70",7:"4x6@72.5",8:"4x6@72.5",9:"2x6@60",
-  10:"3x5@72.5",11:"3x5@75",12:"4x5@72.5",13:"4x5@75",14:"5x5@72.5",15:"5x5@75",16:"5x4@77.5",17:"5x4@77.5",18:"2x4@60",
-  19:"4x3@77.5",20:"4x3@80",21:"5x3@77.5",22:"5x3@80",23:"6x3@77.5",24:"6x3@80",25:"6x3@80",26:"6x3@80"};
-// OHP volume on Day 4 (% of OHP max); Accumulation uses seated DB press instead
-const OV={10:"3x5@70",11:"3x5@72.5",12:"4x5@70",13:"4x5@72.5",14:"5x5@70",15:"5x5@72.5",16:"5x5@72.5",17:"5x5@72.5",18:"2x5@60",
-  19:"4x4@75",20:"4x4@77.5",21:"5x4@75",22:"5x4@77.5",23:"6x4@75",24:"6x4@75",25:"6x4@77.5",26:"6x4@77.5"};
+// Accessory-day variations, loaded by RPE. Index 0–7 = the phase's 8 hard weeks.
+const RP=[7,7,7.5,7.5,8,8,8.5,8.5], RPD=[6,6,6.5,6.5,7,7,7,7];   // deadlift variations capped at RPE 7
+const SV=[3,3,4,4,4,5,5,5], SVD=[2,2,3,3,3,3,3,3];
+const VAR={
+  A:{sq:{n:"Belt squat",sub:"",r:10},dl:{n:"Romanian deadlift",sub:"Stop at mid-shin, flat back",r:8},up:{n:"Close-grip bench",sub:"Index finger on the ring",r:8}},
+  B:{sq:{n:"Pause squat",sub:"2–3 s pause in the hole",r:4},dl:{n:"Pause deadlift",sub:"Pause just below the knee",r:3},up:{n:"Spoto press",sub:"Pause 1″ off the chest",r:5}},
+  C:{sq:{n:"Pin squat",sub:"Pins just above parallel, dead stop",r:3},dl:{n:"Rack pull",sub:"Bar just below the knee",r:3},up:{n:"Pin OHP",sub:"From pins at forehead height",r:3}}
+};
+const START_OF={A:1,B:10,C:19};
+function varEx(b,w,k){const v=VAR[b][k],i=w-START_OF[b],dl=k==="dl";
+  if(DELOAD.has(w))return {n:v.n,sub:v.sub,t:`2 × ${v.r} @ RPE 6`};
+  return {n:v.n,sub:v.sub,t:`${(dl?SVD:SV)[i]} × ${v.r} @ RPE ${(dl?RPD:RP)[i]}`}}
 
-// Accessory lists: lo = lower & back day, up = upper day. Same list all cycle; half sets on deloads.
-const BASEACC={lo:["Bulgarian split squat 3×8 per side","Lying leg curl 3×10","45° back extension 3×12, light","Pull-up or pulldown 4×8","Pallof press 3×10 per side"],
-  up:["Chest-supported row 4×8","Incline DB press 3×10","One-arm DB row 3×10 per side","Triceps pushdown 3×12","Face pull 3×15"]};
-const ACC={A:BASEACC,B:BASEACC,C:BASEACC};
+// Accessory lists: lo = Saturday, up = Sunday. Pull and shoulder change by phase; extras stay. Half sets on deloads.
+const PULL={A:"Lat pulldown 4×10",B:"Weighted pull-up 4×6",C:"Chest-supported row 4×8"};
+const SHLD={A:"DB lateral raise 3×15",B:"Cable lateral raise 3×12",C:"Rear-delt fly 3×15"};
+const ACC={};for(const b of ["A","B","C"])ACC[b]={lo:[PULL[b],"Lying leg curl 3×10","Pallof press 3×10 per side"],up:[SHLD[b],"Triceps pushdown 3×12","Face pull 3×15"]};
 
 function parse(s){return s.split("|").map(p=>{const m=p.match(/^(\d+)x(\d+)@(R?)([\d.]+)$/);return{s:+m[1],r:+m[2],rpe:m[3]?+m[4]:null,pct:m[3]?null:+m[4]}})}
-
-function bvName(b){return b==="A"?["Close-grip bench",""]:["Spoto press","Pause 1″ off the chest"]}
 
 function weekPlan(w){
   const b=blockOf(w),acc=ACC[b],s=add(START,7*(w-1));
@@ -326,14 +325,11 @@ function weekPlan(w){
     {t:"Day 3",when:add(s,5),focus:"Light squat + OHP",ex:[{n:"Squat",l:"sq",x:"2x3@60"},{n:"Overhead press",l:"ohp",x:"2x3@60"}],acc:[]},
     {t:"Day 4",when:add(s,6),focus:"Light bench + deadlift",ex:[{n:"Bench press",l:"bp",x:"2x3@60",sub:"Paused"},{n:"Deadlift",l:"dl",x:"2x2@60"}],acc:[]}
   ]}
-  const lo=[];if(PSQ[w])lo.push({n:"Paused squat",l:"sq",x:PSQ[w],sub:"2 s pause in the hole"});
-  const up=[];if(BV[w]){const [bn,bs]=bvName(b);up.push({n:bn,l:"bp",x:BV[w],sub:bs})}
-  if(b==="A")up.push({n:"Seated DB press",t:(w===9?"2":w<=3?"3":"4")+" × 10 @ RPE 8"});
-  else if(OV[w])up.push({n:"Strict OHP",l:"ohp",x:OV[w],sub:"Volume, no leg drive"});
+  const lo=[varEx(b,w,"sq"),varEx(b,w,"dl")],up=[varEx(b,w,"up")];
   return[
     {t:"Day 1",when:add(s,1),focus:"Squat + OHP",ex:[{n:"Squat",l:"sq",x:H[w],log:1},{n:"Overhead press",l:"ohp",x:H[w],log:1}],acc:[]},
     {t:"Day 2",when:add(s,3),focus:"Bench + deadlift",ex:[{n:"Bench press",l:"bp",x:H[w],sub:"Paused, competition grip",log:1},{n:"Deadlift",l:"dl",x:DL[w],log:1}],acc:[]},
-    {t:"Day 3",when:add(s,5),focus:"Accessories: lower + back",ex:lo,acc:acc.lo,a:true},
+    {t:"Day 3",when:add(s,5),focus:"Accessories: squat + deadlift",ex:lo,acc:acc.lo,a:true},
     {t:"Day 4",when:add(s,6),focus:"Accessories: upper",ex:up,acc:acc.up,a:true}
   ];
 }
