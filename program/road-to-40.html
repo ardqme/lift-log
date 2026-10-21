@@ -132,7 +132,7 @@ details ul{padding-left:20px;margin:0}
     <div class="eyebrow">Squat · Bench · Deadlift · Overhead press — 4 days a week</div>
     <h1>Road to 40</h1>
     <div class="countdown"><b id="days">—</b><span id="daysTxt">days to test day, Tuesday April 27, 2027</span></div>
-    <p class="lede">Accumulation, then top triples, then top singles, with volume climbing through all three. Then two weeks of peak and a taper week, where intensity stays high and volume falls away. Two main-lift days carry only the competition lifts; everything else lives on two back-to-back accessory days. Every load is calculated from the maxes below, rounded to 5 lb.</p>
+    <p class="lede">Accumulation, then top triples, then top singles. Within each block, tonnage on the two main-lift days climbs every week. Then two weeks of peak and a taper week, where intensity stays high and volume falls away. Two main-lift days carry only the competition lifts; everything else lives on two back-to-back accessory days. Every load is calculated from the maxes below, rounded to 5 lb.</p>
   </header>
 
   <section>
@@ -154,7 +154,7 @@ details ul{padding-left:20px;margin:0}
   </section>
 
   <section>
-    <div class="sec-head"><h2>Phases</h2><p class="hint">Bar height is the week’s barbell sets. Tap a week. Faded weeks are deloads.</p></div>
+    <div class="sec-head"><h2>Phases</h2><p class="hint">Bar height is the week’s tonnage on Days 1–2. Tap a week. Faded weeks are deloads.</p></div>
     <div class="strip" id="strip" role="tablist" aria-label="Weeks"></div>
     <div class="legend" id="legend"></div>
   </section>
@@ -187,7 +187,7 @@ details ul{padding-left:20px;margin:0}
   <section>
     <h2>How to run it</h2>
     <details open><summary>The week</summary><div class="body">
-      <p>Days 1 and 2 are the main-lift days: the two competition lifts, warm-up, and nothing else. They should fit in about an hour. Days 3 and 4 are the accessory days, done back to back. Each one leads with a variation of a main lift (paused squat on the lower day; a bench variation and overhead volume on the upper day), then the accessory list. The variations count toward weekly volume and climb with it; the accessory list stays the same until the peak.</p>
+      <p>Days 1 and 2 are the main-lift days: the two competition lifts, warm-up, and nothing else. They should fit in about an hour. Days 3 and 4 are the accessory days, done back to back. Each one leads with a variation of a main lift (paused squat on the lower day; a bench variation and overhead volume on the upper day), then the accessory list. Accessory days don’t count toward the tonnage progression. The accessory list stays the same until the peak.</p>
       <ul>
         <li>Keep at least 48 hours between Day 1 and Day 2.</li>
         <li>Do the lower accessory day first. It sits 2 days after deadlift and 3 days before squat, which keeps the paused squat away from both heavy days.</li>
@@ -246,9 +246,9 @@ const BASE=[100,95.5,92.2,89.2,86.3,83.7,81.1,78.6,76.2,73.9,70.7,68.0];
 function pctFor(reps,rpe){const x=reps+10-rpe,v=i=>BASE[Math.min(Math.max(i,1),12)-1],lo=Math.floor(x),hi=Math.ceil(x);return v(lo)+(v(hi)-v(lo))*(x-lo)}
 
 const BLOCKS={
-  A:{name:"Accumulation",c:"--p-a",desc:"Sets of 5–6 at 67.5–75%. Sets climb from 4 to 6 per lift. Rebuild work capacity and groove the competition lifts."},
-  B:{name:"Strength I",c:"--p-b",desc:"A top triple, then back-off triples. Back-off sets climb from 4 to 6, so volume keeps rising as the loads go up."},
-  C:{name:"Strength II",c:"--p-c",desc:"A top single, then back-off doubles. Back-off sets climb from 5 to 7, the most volume of the cycle."},
+  A:{name:"Accumulation",c:"--p-a",desc:"Sets of 5–6 at 67.5–75%. Sets and load climb every week, so main-day tonnage rises about 65% across the block."},
+  B:{name:"Strength I",c:"--p-b",desc:"A top triple, then back-off sets of 5. Each week adds a back-off set or 2.5%, so main-day tonnage rises every week."},
+  C:{name:"Strength II",c:"--p-c",desc:"A top single, then back-off triples. Each week adds a back-off set or 2.5%, so main-day tonnage rises every week."},
   E:{name:"Peak",c:"--p-e",desc:"Two weeks. Volume drops by more than half; intensity goes up. Accessory days are short."},
   F:{name:"Taper",c:"--p-f",desc:"Openers early in the week, technique Friday, then rest."},
   T:{name:"Test",c:"--p-t",desc:""}
@@ -259,11 +259,11 @@ const NOTES={
   1:"Calibration week. On Days 1 and 2, work up to a top set of 5 at RPE 8 on squat, bench and OHP (deadlift: 5 at RPE 7). Put each one in the calculator below, update your maxes, and the rest of the program re-scales.",
   6:"Thanksgiving week. Run it as written if you can; drop the upper accessory day if you can’t.",
   8:"Deload. Accessories at half the listed sets.",
-  9:"Strength I starts. Work up to the top triple, then the back-off triples.",
+  9:"Strength I starts. Work up to the top triple, then the back-off fives.",
   10:"Christmas is Friday. Move the lower accessory day to Thursday or skip it.",
   11:"New Year’s Day is Friday. Move the lower accessory day to Thursday or Saturday.",
   16:"Deload. Accessories at half the listed sets.",
-  17:"Strength II starts. Work up to the top single, then the back-off doubles.",
+  17:"Strength II starts. Work up to the top single, then the back-off triples.",
   24:"Deload before the peak. Accessories at half the listed sets.",
   25:"Peak starts. Volume falls; the top single gets heavier. Shorten Thursday’s intervals.",
   26:"Heaviest singles of the cycle. Update maxes from these; they set your test-day attempts. Last heavy deadlift, 13 days out.",
@@ -272,14 +272,14 @@ const NOTES={
 };
 
 // Squat, bench and OHP on Days 1–2
-const H={1:"1x5@R8|3x6@67.5",2:"4x6@67.5",3:"4x6@70",4:"5x6@70",5:"5x6@72.5",6:"6x5@72.5",7:"6x5@75",8:"3x5@60",
-  9:"1x3@R8|4x3@77.5",10:"1x3@R8|4x3@80",11:"1x3@R8|5x3@80",12:"1x3@R8.5|5x3@82.5",13:"1x3@R8.5|6x3@80",14:"1x3@R9|6x3@80",15:"1x3@R9|6x3@82.5",16:"2x3@70",
-  17:"1x1@R8|5x2@82.5",18:"1x1@R8|5x2@85",19:"1x1@R8.5|6x2@82.5",20:"1x1@R8.5|6x2@85",21:"1x1@R8.5|7x2@82.5",22:"1x1@R9|7x2@82.5",23:"1x1@R9|7x2@85",24:"2x2@75",
+const H={1:"1x5@R8|3x6@67.5",2:"4x6@67.5",3:"4x6@70",4:"5x6@70",5:"5x6@72.5",6:"6x6@72.5",7:"6x6@75",8:"3x5@60",
+  9:"1x3@R8|3x5@75",10:"1x3@R8|4x5@75",11:"1x3@R8|4x5@77.5",12:"1x3@R8.5|5x5@75",13:"1x3@R8.5|5x5@77.5",14:"1x3@R9|6x5@75",15:"1x3@R9|6x5@77.5",16:"2x3@70",
+  17:"1x1@R8|4x3@80",18:"1x1@R8|5x3@80",19:"1x1@R8.5|5x3@82.5",20:"1x1@R8.5|6x3@80",21:"1x1@R8.5|6x3@82.5",22:"1x1@R9|7x3@80",23:"1x1@R9|7x3@82.5",24:"2x2@75",
   25:"1x1@R9|2x2@87.5",26:"1x1@R9|2x1@90"};
 // Deadlift on Day 2, capped at RPE 8.5
-const DL={1:"1x5@R7|2x5@67.5",2:"3x5@67.5",3:"3x5@70",4:"3x5@72.5",5:"4x5@70",6:"4x5@72.5",7:"4x5@75",8:"2x5@60",
-  9:"1x3@R7.5|3x3@77.5",10:"1x3@R8|3x3@77.5",11:"1x3@R8|3x3@80",12:"1x3@R8|4x3@77.5",13:"1x3@R8|4x3@80",14:"1x3@R8.5|4x3@80",15:"1x3@R8.5|4x3@82.5",16:"2x3@70",
-  17:"1x1@R8|3x2@82.5",18:"1x1@R8|3x2@85",19:"1x1@R8|4x2@82.5",20:"1x1@R8.5|4x2@82.5",21:"1x1@R8.5|4x2@85",22:"1x1@R8.5|5x2@82.5",23:"1x1@R8.5|5x2@85",24:"2x2@70",
+const DL={1:"1x5@R7|2x5@67.5",2:"3x5@67.5",3:"3x5@70",4:"4x5@67.5",5:"4x5@70",6:"4x5@72.5",7:"5x5@72.5",8:"2x5@60",
+  9:"1x3@R7.5|2x5@72.5",10:"1x3@R8|3x5@72.5",11:"1x3@R8|3x5@75",12:"1x3@R8|4x5@72.5",13:"1x3@R8|4x5@75",14:"1x3@R8.5|4x5@77.5",15:"1x3@R8.5|5x5@75",16:"2x3@70",
+  17:"1x1@R8|3x3@77.5",18:"1x1@R8|3x3@80",19:"1x1@R8|4x3@77.5",20:"1x1@R8.5|4x3@80",21:"1x1@R8.5|5x3@77.5",22:"1x1@R8.5|5x3@80",23:"1x1@R8.5|5x3@82.5",24:"2x2@70",
   25:"1x1@R8.5|2x2@85",26:"1x1@R8.5"};
 // Paused squat on Day 3 (% of squat max)
 const PSQ={1:"3x6@60",2:"3x6@62.5",3:"3x6@65",4:"4x6@62.5",5:"4x6@65",6:"4x5@67.5",7:"4x5@70",8:"2x5@55",
@@ -323,10 +323,11 @@ function weekPlan(w){
   ];
   return days.filter(d=>d.ex.length||d.acc.length);
 }
-// Weekly barbell and variation sets (accessory lists not counted)
-function volOf(w){if(w===28)return 12;return weekPlan(w).reduce((t,d)=>t+d.ex.reduce((u,x)=>u+(x.t?parseInt(x.t):parse(x.x).reduce((v,p)=>v+p.s,0)),0),0)}
-const VOL=Array.from({length:28},(_,i)=>volOf(i+1)),VMAX=Math.max(...VOL);
-
+// Weekly tonnage on Days 1–2 only (accessory days not counted), from the current maxes
+function tonOf(w){
+  if(w===28)return ["sq","bp","ohp","dl"].reduce((t,k)=>t+st.e[k]*(.91+.96+1.01),0);
+  return weekPlan(w).filter(d=>d.t==="Day 1"||d.t==="Day 2").reduce((t,d)=>t+d.ex.reduce((u,x)=>u+parse(x.x).reduce((v,p)=>v+p.s*p.r*st.e[x.l]*(p.rpe!=null?pctFor(p.r,p.rpe):p.pct)/100,0),0),0)}
+const lbs=n=>Math.round(n/100)*100;
 function setHTML(p,lift){
   const e=st.e[lift];
   if(p.rpe!=null){const est=r5(e*pctFor(p.r,p.rpe)/100);
@@ -361,13 +362,13 @@ function renderLifts(){
       <label for="e_${k}">Est. 1RM (lb)</label><input id="e_${k}" data-k="${k}" data-f="e" type="number" inputmode="decimal" value="${st.e[k]}">
       <label for="b_${k}">Lifetime best</label><input class="small" id="b_${k}" data-k="${k}" data-f="best" type="number" inputmode="decimal" value="${st.best[k]}">
       <span class="gap">PR needs <span class="num">${need>0?"+"+need.toFixed(1)+"%":"nothing more"}</span></span></div>`}).join("");
-  document.querySelectorAll(".lift input").forEach(i=>i.addEventListener("change",ev=>{const v=parseFloat(ev.target.value);if(v>0){st[ev.target.dataset.f][ev.target.dataset.k]=v;save();renderLifts();renderWeek()}}));
+  document.querySelectorAll(".lift input").forEach(i=>i.addEventListener("change",ev=>{const v=parseFloat(ev.target.value);if(v>0){st[ev.target.dataset.f][ev.target.dataset.k]=v;save();renderLifts();renderAll()}}));
 }
 
 function renderStrip(){
-  const now=curWeek();
+  const now=curWeek(),T=Array.from({length:28},(_,i)=>tonOf(i+1)),TMAX=Math.max(...T);
   document.getElementById("strip").innerHTML=Array.from({length:28},(_,i)=>{const w=i+1,b=blockOf(w);
-    return `<button class="seg${DELOAD.has(w)?" deload":""}${w===sel?" sel":""}${w===now?" now":""}" style="--c:var(${BLOCKS[b].c});--h:${Math.round(10+54*VOL[i]/VMAX)}px" data-w="${w}" role="tab" aria-selected="${w===sel}" aria-label="Week ${w}, ${BLOCKS[b].name}, ${VOL[i]} sets"></button>`}).join("");
+    return `<button class="seg${DELOAD.has(w)?" deload":""}${w===sel?" sel":""}${w===now?" now":""}" style="--c:var(${BLOCKS[b].c});--h:${Math.round(8+56*T[i]/TMAX)}px" data-w="${w}" role="tab" aria-selected="${w===sel}" aria-label="Week ${w}, ${BLOCKS[b].name}, ${lbs(T[i]).toLocaleString()} lb"></button>`}).join("");
   document.querySelectorAll(".seg").forEach(b=>b.addEventListener("click",()=>{sel=+b.dataset.w;renderAll()}));
 }
 function renderLegend(){
@@ -380,7 +381,7 @@ function renderWeek(){
   document.getElementById("pill").style.setProperty("--c",`var(${B.c})`);
   document.getElementById("wkNote").style.setProperty("--c",`var(${B.c})`);
   document.getElementById("wkTitle").textContent=sel===28?"Test week":`Week ${sel}`;
-  document.getElementById("wkDates").textContent=sel===28?"Mon Apr 26 – Tue Apr 27, 2027":`${fmt(s)} – ${fmt(add(s,6))} · ${VOL[sel-1]} barbell sets`;
+  document.getElementById("wkDates").textContent=sel===28?"Mon Apr 26 – Tue Apr 27, 2027":`${fmt(s)} – ${fmt(add(s,6))} · Days 1–2 tonnage ${lbs(tonOf(sel)).toLocaleString()} lb`;
   document.getElementById("wkNote").textContent=NOTES[sel]||B.desc;
   document.getElementById("prev").disabled=sel===1;document.getElementById("next").disabled=sel===28;
   const list=document.getElementById("days-list");
@@ -401,7 +402,7 @@ function calc(){const w=parseFloat(cW.value),r=Math.min(8,Math.max(1,parseInt(cR
   if(!(w>0)){cOut.textContent="—";return null}const e=Math.round(w/(pctFor(r,rpe)/100));cOut.textContent=e+" lb";return e}
 const cW=document.getElementById("cW"),cR=document.getElementById("cR"),cRpe=document.getElementById("cRpe"),cOut=document.getElementById("cOut"),cLift=document.getElementById("cLift");
 [cW,cR,cRpe].forEach(i=>i.addEventListener("input",calc));
-document.getElementById("cUse").addEventListener("click",()=>{const e=calc();if(e){st.e[cLift.value]=e;save();renderLifts();renderWeek();document.getElementById("cUse").textContent="Updated "+LIFTS[cLift.value];setTimeout(()=>document.getElementById("cUse").textContent="Use as max",1800)}});
+document.getElementById("cUse").addEventListener("click",()=>{const e=calc();if(e){st.e[cLift.value]=e;save();renderLifts();renderAll();document.getElementById("cUse").textContent="Updated "+LIFTS[cLift.value];setTimeout(()=>document.getElementById("cUse").textContent="Use as max",1800)}});
 document.getElementById("prev").addEventListener("click",()=>{if(sel>1){sel--;renderAll()}});
 document.getElementById("next").addEventListener("click",()=>{if(sel<28){sel++;renderAll()}});
 
