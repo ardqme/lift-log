@@ -132,7 +132,7 @@ details ul{padding-left:20px;margin:0}
     <div class="eyebrow">Squat · Bench · Deadlift · Overhead press — 4 days a week</div>
     <h1>Road to 40</h1>
     <div class="countdown"><b id="days">—</b><span id="daysTxt">days to test day, Tuesday April 27, 2027</span></div>
-    <p class="lede">Accumulation, then top triples, then top singles. Within each block, tonnage on the two main-lift days climbs every week. Then two weeks of peak and a taper week, where intensity stays high and volume falls away. Two main-lift days carry only the competition lifts; everything else lives on two back-to-back accessory days. Every load is calculated from the maxes below, rounded to 5 lb.</p>
+    <p class="lede">Three 8-week blocks: accumulation, top triples, top singles. Within each block, tonnage on the two main-lift days climbs every week, and each block ends with a deload. The last deload is four light days on the big four, then the test. Two main-lift days carry only the competition lifts; everything else lives on two back-to-back accessory days. Every load is calculated from the maxes below, rounded to 5 lb.</p>
   </header>
 
   <section>
@@ -187,7 +187,7 @@ details ul{padding-left:20px;margin:0}
   <section>
     <h2>How to run it</h2>
     <details open><summary>The week</summary><div class="body">
-      <p>Days 1 and 2 are the main-lift days: the two competition lifts, warm-up, and nothing else. They should fit in about an hour. Days 3 and 4 are the accessory days, done back to back. Each one leads with a variation of a main lift (paused squat on the lower day; a bench variation and overhead volume on the upper day), then the accessory list. Accessory days don’t count toward the tonnage progression. The accessory list stays the same until the peak.</p>
+      <p>Days 1 and 2 are the main-lift days: the two competition lifts, warm-up, and nothing else. They should fit in about an hour. Days 3 and 4 are the accessory days, done back to back. Each one leads with a variation of a main lift (paused squat on the lower day; a bench variation and overhead volume on the upper day), then the accessory list. Accessory days don’t count toward the tonnage progression. The accessory list stays the same all cycle; deload weeks use half sets, and the final deload has none.</p>
       <ul>
         <li>Keep at least 48 hours between Day 1 and Day 2.</li>
         <li>Do the lower accessory day first. It sits 2 days after deadlift and 3 days before squat, which keeps the paused squat away from both heavy days.</li>
@@ -214,11 +214,11 @@ details ul{padding-left:20px;margin:0}
     <details><summary>Percentages, RPE and updating maxes</summary><div class="body">
       <p>Percentages are of your estimated 1RM. Top singles are prescribed by RPE; the load shown next to them is what that RPE should look like if your max is accurate.</p>
       <p>If a top single lands a full RPE harder than prescribed, take 5% off the back-off sets that day. If it lands a full RPE easier, add 2.5%.</p>
-      <p>Update your maxes with the calculator after week 1 (calibration sets) and at the last hard week of each block (weeks 7, 15 and 23). Week 26’s heaviest singles set your test-day attempts.</p>
+      <p>Update your maxes with the calculator after week 1 (calibration sets) and at the last hard week of each block (weeks 8, 17 and 26). Week 26’s heaviest singles set your test-day attempts.</p>
     </div></details>
     <details><summary>Cycling alongside</summary><div class="body">
       <p>Two Zone 2 rides and one interval session a week: Zone 2 on Tuesday and Sunday, intervals on Thursday. Thursday is the only day that isn’t within 24 hours of Day 1 or Day 2, so keep intervals there if the week shifts.</p>
-      <p>During the peak (from April 5), shorten the interval session. From April 19: Zone 2 only, 45 minutes or less, and nothing on April 26.</p>
+      <p>In week 26, shorten the interval session. From April 19: Zone 2 only, 45 minutes or less, and nothing on April 26.</p>
     </div></details>
     <details><summary>Test day</summary><div class="body">
       <p>Order: squat, bench, overhead press, deadlift. Three attempts each, 5–8 minutes between attempts, and about 15 minutes between lifts. Use the same warm-up and ramp as the openers in week 27.</p>
@@ -249,79 +249,72 @@ const BLOCKS={
   A:{name:"Accumulation",c:"--p-a",desc:"Sets of 5–6 at 67.5–75%. Sets and load climb every week, so main-day tonnage rises about 65% across the block."},
   B:{name:"Strength I",c:"--p-b",desc:"A top triple, then back-off sets of 5. Each week adds a back-off set or 2.5%, so main-day tonnage rises every week."},
   C:{name:"Strength II",c:"--p-c",desc:"A top single, then back-off triples. Each week adds a back-off set or 2.5%, so main-day tonnage rises every week."},
-  E:{name:"Peak",c:"--p-e",desc:"Two weeks. Volume drops by more than half; intensity goes up. Accessory days are short."},
-  F:{name:"Taper",c:"--p-f",desc:"Openers early in the week, technique Friday, then rest."},
   T:{name:"Test",c:"--p-t",desc:""}
 };
-function blockOf(w){return w<=8?"A":w<=16?"B":w<=24?"C":w<=26?"E":w===27?"F":"T"}
-const DELOAD=new Set([8,16,24]);
+function blockOf(w){return w<=9?"A":w<=18?"B":w<=27?"C":"T"}
+const DELOAD=new Set([9,18,27]);
 const NOTES={
   1:"Calibration week. On Days 1 and 2, work up to a top set of 5 at RPE 8 on squat, bench and OHP (deadlift: 5 at RPE 7). Put each one in the calculator below, update your maxes, and the rest of the program re-scales.",
   6:"Thanksgiving week. Run it as written if you can; drop the upper accessory day if you can’t.",
-  8:"Deload. Accessories at half the listed sets.",
-  9:"Strength I starts. Work up to the top triple, then the back-off fives.",
-  10:"Christmas is Friday. Move the lower accessory day to Thursday or skip it.",
+  8:"Last hard week of Accumulation. Update maxes from your heaviest sets.",
+  9:"Deload. Accessories at half the listed sets.",
+  10:"Strength I starts: top triple, then back-off fives. Christmas is Friday, so move the lower accessory day to Thursday or skip it.",
   11:"New Year’s Day is Friday. Move the lower accessory day to Thursday or Saturday.",
-  16:"Deload. Accessories at half the listed sets.",
-  17:"Strength II starts. Work up to the top single, then the back-off triples.",
-  24:"Deload before the peak. Accessories at half the listed sets.",
-  25:"Peak starts. Volume falls; the top single gets heavier. Shorten Thursday’s intervals.",
-  26:"Heaviest singles of the cycle. Update maxes from these; they set your test-day attempts. Last heavy deadlift, 13 days out.",
-  27:"Openers Monday and Wednesday, one technique session Friday, then rest Saturday through Monday. Zone 2 only, 45 minutes or less.",
+  17:"Last hard week of Strength I. Update maxes from the top triples.",
+  18:"Deload. Accessories at half the listed sets.",
+  19:"Strength II starts: top single, then back-off triples.",
+  26:"Last hard week of the cycle and the heaviest top singles. Update maxes from these; they set your test-day attempts. Last heavy deadlift, 15 days out.",
+  27:"Final deload. Four light days on the big four and no accessories. Openers on Monday and Wednesday, then two easy technique days. Rest Sunday and Monday. Zone 2 only, 45 minutes or less.",
   28:"Test day. Squat, bench, OHP, deadlift."
 };
 
 // Squat, bench and OHP on Days 1–2
-const H={1:"1x5@R8|3x6@67.5",2:"4x6@67.5",3:"4x6@70",4:"5x6@70",5:"5x6@72.5",6:"6x6@72.5",7:"6x6@75",8:"3x5@60",
-  9:"1x3@R8|3x5@75",10:"1x3@R8|4x5@75",11:"1x3@R8|4x5@77.5",12:"1x3@R8.5|5x5@75",13:"1x3@R8.5|5x5@77.5",14:"1x3@R9|6x5@75",15:"1x3@R9|6x5@77.5",16:"2x3@70",
-  17:"1x1@R8|4x3@80",18:"1x1@R8|5x3@80",19:"1x1@R8.5|5x3@82.5",20:"1x1@R8.5|6x3@80",21:"1x1@R8.5|6x3@82.5",22:"1x1@R9|7x3@80",23:"1x1@R9|7x3@82.5",24:"2x2@75",
-  25:"1x1@R9|2x2@87.5",26:"1x1@R9|2x1@90"};
+const H={1:"1x5@R8|3x6@67.5",2:"4x6@67.5",3:"4x6@70",4:"5x6@70",5:"5x6@72.5",6:"6x6@70",7:"6x6@72.5",8:"6x6@75",9:"3x5@60",
+  10:"1x3@R8|3x5@75",11:"1x3@R8|4x5@75",12:"1x3@R8|4x5@77.5",13:"1x3@R8.5|5x5@75",14:"1x3@R8.5|5x5@77.5",15:"1x3@R9|6x5@75",16:"1x3@R9|6x5@77.5",17:"1x3@R9|7x5@75",18:"2x3@70",
+  19:"1x1@R8|4x3@80",20:"1x1@R8|5x3@80",21:"1x1@R8.5|5x3@82.5",22:"1x1@R8.5|6x3@80",23:"1x1@R8.5|6x3@82.5",24:"1x1@R9|7x3@80",25:"1x1@R9|7x3@82.5",26:"1x1@R9|8x3@80"};
 // Deadlift on Day 2, capped at RPE 8.5
-const DL={1:"1x5@R7|2x5@67.5",2:"3x5@67.5",3:"3x5@70",4:"4x5@67.5",5:"4x5@70",6:"4x5@72.5",7:"5x5@72.5",8:"2x5@60",
-  9:"1x3@R7.5|2x5@72.5",10:"1x3@R8|3x5@72.5",11:"1x3@R8|3x5@75",12:"1x3@R8|4x5@72.5",13:"1x3@R8|4x5@75",14:"1x3@R8.5|4x5@77.5",15:"1x3@R8.5|5x5@75",16:"2x3@70",
-  17:"1x1@R8|3x3@77.5",18:"1x1@R8|3x3@80",19:"1x1@R8|4x3@77.5",20:"1x1@R8.5|4x3@80",21:"1x1@R8.5|5x3@77.5",22:"1x1@R8.5|5x3@80",23:"1x1@R8.5|5x3@82.5",24:"2x2@70",
-  25:"1x1@R8.5|2x2@85",26:"1x1@R8.5"};
+const DL={1:"1x5@R7|2x5@67.5",2:"3x5@67.5",3:"3x5@70",4:"4x5@67.5",5:"4x5@70",6:"4x5@72.5",7:"5x5@70",8:"5x5@72.5",9:"2x5@60",
+  10:"1x3@R7.5|2x5@72.5",11:"1x3@R8|3x5@72.5",12:"1x3@R8|3x5@75",13:"1x3@R8|4x5@72.5",14:"1x3@R8|4x5@75",15:"1x3@R8.5|4x5@77.5",16:"1x3@R8.5|5x5@75",17:"1x3@R8.5|5x5@77.5",18:"2x3@70",
+  19:"1x1@R8|3x3@77.5",20:"1x1@R8|3x3@80",21:"1x1@R8|4x3@77.5",22:"1x1@R8.5|4x3@80",23:"1x1@R8.5|5x3@77.5",24:"1x1@R8.5|5x3@80",25:"1x1@R8.5|5x3@82.5",26:"1x1@R8.5|6x3@80"};
 // Paused squat on Day 3 (% of squat max)
-const PSQ={1:"3x6@60",2:"3x6@62.5",3:"3x6@65",4:"4x6@62.5",5:"4x6@65",6:"4x5@67.5",7:"4x5@70",8:"2x5@55",
-  9:"3x4@70",10:"3x4@72.5",11:"4x4@70",12:"4x4@72.5",13:"5x4@70",14:"5x4@72.5",15:"5x4@75",16:"2x3@60",
-  17:"4x3@75",18:"4x3@77.5",19:"5x3@75",20:"5x3@77.5",21:"6x3@75",22:"6x3@77.5",23:"6x3@77.5",24:"2x3@60",
-  25:"2x2@75"};
+const PSQ={1:"3x6@60",2:"3x6@62.5",3:"3x6@65",4:"4x6@62.5",5:"4x6@65",6:"4x5@67.5",7:"4x5@70",8:"4x5@70",9:"2x5@55",
+  10:"3x4@70",11:"3x4@72.5",12:"4x4@70",13:"4x4@72.5",14:"5x4@70",15:"5x4@72.5",16:"5x4@75",17:"5x4@75",18:"2x3@60",
+  19:"4x3@75",20:"4x3@77.5",21:"5x3@75",22:"5x3@77.5",23:"6x3@75",24:"6x3@77.5",25:"6x3@77.5",26:"6x3@77.5"};
 // Bench variation on Day 4 (% of bench max)
-const BV={1:"3x8@62.5",2:"3x8@65",3:"3x8@67.5",4:"4x8@65",5:"4x8@67.5",6:"4x6@70",7:"4x6@72.5",8:"2x6@60",
-  9:"3x5@72.5",10:"3x5@75",11:"4x5@72.5",12:"4x5@75",13:"5x5@72.5",14:"5x5@75",15:"5x4@77.5",16:"2x4@60",
-  17:"4x3@77.5",18:"4x3@80",19:"5x3@77.5",20:"5x3@80",21:"6x3@77.5",22:"6x3@80",23:"6x3@80",24:"2x3@65",
-  25:"2x2@80"};
+const BV={1:"3x8@62.5",2:"3x8@65",3:"3x8@67.5",4:"4x8@65",5:"4x8@67.5",6:"4x6@70",7:"4x6@72.5",8:"4x6@72.5",9:"2x6@60",
+  10:"3x5@72.5",11:"3x5@75",12:"4x5@72.5",13:"4x5@75",14:"5x5@72.5",15:"5x5@75",16:"5x4@77.5",17:"5x4@77.5",18:"2x4@60",
+  19:"4x3@77.5",20:"4x3@80",21:"5x3@77.5",22:"5x3@80",23:"6x3@77.5",24:"6x3@80",25:"6x3@80",26:"6x3@80"};
 // OHP volume on Day 4 (% of OHP max); Accumulation uses seated DB press instead
-const OV={9:"3x5@70",10:"3x5@72.5",11:"4x5@70",12:"4x5@72.5",13:"5x5@70",14:"5x5@72.5",15:"5x5@72.5",16:"2x5@60",
-  17:"4x4@75",18:"4x4@77.5",19:"5x4@75",20:"5x4@77.5",21:"6x4@75",22:"6x4@75",23:"6x4@77.5",24:"2x4@60"};
+const OV={10:"3x5@70",11:"3x5@72.5",12:"4x5@70",13:"4x5@72.5",14:"5x5@70",15:"5x5@72.5",16:"5x5@72.5",17:"5x5@72.5",18:"2x5@60",
+  19:"4x4@75",20:"4x4@77.5",21:"5x4@75",22:"5x4@77.5",23:"6x4@75",24:"6x4@75",25:"6x4@77.5",26:"6x4@77.5"};
 
-// Accessory lists: lo = lower & back day, up = upper day. Same list through the first three blocks.
+// Accessory lists: lo = lower & back day, up = upper day. Same list all cycle; half sets on deloads.
 const BASEACC={lo:["Bulgarian split squat 3×8 per side","Lying leg curl 3×10","45° back extension 3×12, light","Pull-up or pulldown 4×8","Pallof press 3×10 per side"],
   up:["Chest-supported row 4×8","Incline DB press 3×10","One-arm DB row 3×10 per side","Triceps pushdown 3×12","Face pull 3×15"]};
-const ACC={A:BASEACC,B:BASEACC,C:BASEACC,E:{lo:["Pulldown 2×10","Pallof press 2×10 per side"],up:["Chest-supported row 2×10","Face pull 2×15"]},F:{lo:[],up:[]}};
+const ACC={A:BASEACC,B:BASEACC,C:BASEACC};
 
 function parse(s){return s.split("|").map(p=>{const m=p.match(/^(\d+)x(\d+)@(R?)([\d.]+)$/);return{s:+m[1],r:+m[2],rpe:m[3]?+m[4]:null,pct:m[3]?null:+m[4]}})}
 
-function bvName(b){return b==="A"?["Close-grip bench",""]:b==="E"?["Paused bench","Competition grip, on a “press” command"]:["Spoto press","Pause 1″ off the chest"]}
+function bvName(b){return b==="A"?["Close-grip bench",""]:["Spoto press","Pause 1″ off the chest"]}
 
 function weekPlan(w){
   const b=blockOf(w),acc=ACC[b],s=add(START,7*(w-1));
   if(w===27){return[
-    {t:"Day 1",when:add(s,0),focus:"Openers: squat + OHP",ex:[{n:"Squat",l:"sq",x:"1x1@91|1x2@75",sub:"Opener single"},{n:"Overhead press",l:"ohp",x:"1x1@91|1x2@75",sub:"Opener single"}],acc:[]},
-    {t:"Day 2",when:add(s,2),focus:"Opener: bench, light pulls",ex:[{n:"Bench press",l:"bp",x:"1x1@91|1x2@75",sub:"Opener single, paused"},{n:"Deadlift",l:"dl",x:"2x2@70",sub:"Fast, crisp pulls"}],acc:[]},
-    {t:"Day 3",when:add(s,4),focus:"Technique, no accessories",ex:[{n:"Squat",l:"sq",x:"1x2@70"},{n:"Bench press",l:"bp",x:"1x2@70",sub:"Paused"},{n:"Overhead press",l:"ohp",x:"1x2@65"}],acc:[],a:true}
+    {t:"Day 1",when:add(s,0),focus:"Openers: squat + OHP",ex:[{n:"Squat",l:"sq",x:"1x1@91|2x2@70",sub:"Opener single"},{n:"Overhead press",l:"ohp",x:"1x1@91|2x2@70",sub:"Opener single"}],acc:[]},
+    {t:"Day 2",when:add(s,2),focus:"Openers: bench + deadlift",ex:[{n:"Bench press",l:"bp",x:"1x1@91|2x2@70",sub:"Opener single, paused"},{n:"Deadlift",l:"dl",x:"2x2@70",sub:"Fast, crisp pulls"}],acc:[]},
+    {t:"Day 3",when:add(s,4),focus:"Light squat + OHP",ex:[{n:"Squat",l:"sq",x:"2x3@60"},{n:"Overhead press",l:"ohp",x:"2x3@60"}],acc:[]},
+    {t:"Day 4",when:add(s,5),focus:"Light bench + deadlift",ex:[{n:"Bench press",l:"bp",x:"2x3@60",sub:"Paused"},{n:"Deadlift",l:"dl",x:"2x2@60"}],acc:[]}
   ]}
   const lo=[];if(PSQ[w])lo.push({n:"Paused squat",l:"sq",x:PSQ[w],sub:"2 s pause in the hole"});
   const up=[];if(BV[w]){const [bn,bs]=bvName(b);up.push({n:bn,l:"bp",x:BV[w],sub:bs})}
-  if(b==="A")up.push({n:"Seated DB press",t:(w===8?"2":w<=3?"3":"4")+" × 10 @ RPE 8"});
+  if(b==="A")up.push({n:"Seated DB press",t:(w===9?"2":w<=3?"3":"4")+" × 10 @ RPE 8"});
   else if(OV[w])up.push({n:"Strict OHP",l:"ohp",x:OV[w],sub:"Volume, no leg drive"});
-  const days=[
+  return[
     {t:"Day 1",when:add(s,0),focus:"Squat + OHP",ex:[{n:"Squat",l:"sq",x:H[w]},{n:"Overhead press",l:"ohp",x:H[w]}],acc:[]},
     {t:"Day 2",when:add(s,2),focus:"Bench + deadlift",ex:[{n:"Bench press",l:"bp",x:H[w],sub:"Paused, competition grip"},{n:"Deadlift",l:"dl",x:DL[w]}],acc:[]},
     {t:"Day 3",when:add(s,4),focus:"Accessories: lower + back",ex:lo,acc:acc.lo,a:true},
     {t:"Day 4",when:add(s,5),focus:"Accessories: upper",ex:up,acc:acc.up,a:true}
   ];
-  return days.filter(d=>d.ex.length||d.acc.length);
 }
 // Weekly tonnage on Days 1–2 only (accessory days not counted), from the current maxes
 function tonOf(w){
